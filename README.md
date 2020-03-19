@@ -479,7 +479,6 @@ Whey you create tables like this, MySQL copies only the column defnitions and da
 Usually use this statement to add a single row to a table. Can also add multiple rows. You name the table on the INSERT clause, then add an optional list of columns, then add the new row
 
 > **Example**
-> The following example inserts 
 ```sql
 INSERT INTO invoices (1)
 	(vendor_id, invoice_number, invoice_total, terms_id, invoice_date, invoice_due_date) (2)
@@ -495,3 +494,20 @@ VALUES (3)
 
    You can omit columns that have default valudes, accept null values, or are automatically generated.
 
+### Subquery in INSERT statement
+
+A **subquery** is a **SELECT** statement that is coded within another SQL statement. 
+> **Example**  
+> The subquery specifies the values for the new rows by selecting these values from another table. 
+
+```sql
+INSERT INTO invoice_archive
+	(invoice_id, vendor_id, invoice_number, invoice_total, credit_total, payment_total, terms_id, invoice_date, invoice_due_date)
+SELECT 
+	invoice_id, vendor_id, invoice_number, invoice_total, credit_total, payment_total, terms_id, invoice_data, invoice_due_date
+FROM invoices
+WHERE invoice_total - payment_total - credit_total = 0;
+```  
+
+When you include a column list, you must list the columns in the same sequence as the **SELECT** clause of the subquery.  
+You can omit auto increment columns, columns that are defined with default values, and columns that allow null values.
