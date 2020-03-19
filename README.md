@@ -1,4 +1,4 @@
-Conceptual
+## Conceptual
     Relational Databases are made of tables 
     Tables are made of rows and columns 
     Rows and columns are sometimes called records and fields, respectively
@@ -49,10 +49,10 @@ Conceptual
             Index 
             Synonym
 
-Building queries 
+## Building queries 
     Best practice to build queries one clause at a time.
 
-Statements 
+## Statements 
     SELECT - clause that names the columns to be retrieved
     INSERT INTO - clause that names the columns whose values are supplied in the VALUES clause 
     VALUES - clause that lists the data that is inserted with an INSERT clause
@@ -134,7 +134,7 @@ Statements
         FROM table_1
         WHERE column_1 - column_2 > 0
         ORDER BY column_1 
-SELECT 
+## SELECT 
     Syntax 
         SELECT select_list 
         [FROM table_source]
@@ -154,7 +154,7 @@ SELECT
     DISTINCT - use DISTINCT if you do not want the results table to include duplicate rows. 
 
 
-Column specifications
+## Column specifications
     Base table value 
         All columns = *
         Column name = column_name 
@@ -162,7 +162,7 @@ Column specifications
         Result of a calculation = arithmetic expression
         Result of a function = functions (CONCAT, etc.)
 
-Arithmetic operators 
+## Arithmetic operators 
     *
     /
     DIV - integer division
@@ -170,7 +170,7 @@ Arithmetic operators
     +
     -
 
-Logical operators 
+## Logical operators 
     AND and OR - combine two or more search conditions in to a compound condition 
         Example: 
             WHERE vendor_state = 'NJ' AND vendor_city = 'Springfield';
@@ -184,7 +184,7 @@ Logical operators
         2. AND
         3. OR
 
-Functions 
+## Functions 
     Functions are used in the SELECT clause 
     CONCAT - used to join strings. 
         CONCAT(string1[, string2]...)
@@ -211,7 +211,7 @@ Functions
     CURRENT_DATE - returns the current date 
 
 
-JOINS
+## JOINS
     Retrives data from two tables and joins it together in a single result set 
         INNER JOIN - most common type of join. 
         Rows from the two tables in the join are included in the result table only if their related columns match.
@@ -236,9 +236,9 @@ JOINS
         Then, it filters the results 
         If there are not any invoices for a particular vendor, that vendor is not included in the result set.
 
-Retrieve data from multiple tables 
+# Retrieve data from multiple tables 
 
-INNER JOIN
+## INNER JOIN
     Combines columns from 2 or more tables into a result set based on the join conditions
     For inner joins, only the two rows that satisfy the join condition are included in the result set 
     How to code inner join:
@@ -332,7 +332,7 @@ INNER JOIN
             WHERE invoice_total - payment_total - credit_total > 0
             ORDER BY vendor_name, line_item_amount DESC;
 
-OUTER JOINS 
+## OUTER JOINS 
     Returns all of the rows from one of the tables involved in the join, plus unmatched rows in the LEFT or RIGHT table, regardless of whether the join condition is true 
     LEFT or RIGHT keyword 
         LEFT - the result set includes all the rows from the first (left) table 
@@ -356,7 +356,7 @@ OUTER JOINS
                     ON e.employee_id = p.employee_id
             ORDER BY department_name, last_name;
 
-USING keyword 
+## USING keyword 
     Use the USING clause instead of an ON clause during an equijoin to specify the join. To join tables by multiple columns, put the multiple columns in the parentheses, separated by a column 
         equijoin/equi-join - When you use the equal operator to join two tables on a common column. 
             Common for the columns that are being compared to have the same name.
@@ -379,7 +379,7 @@ USING keyword
             (1) INNER JOIN between departments and employees on the department_number column 
             (2) LEFT JOIN between employees and projects using the employee_id column 
 
-NATURAL keyword 
+## NATURAL keyword 
     You don't specific the column that's used to join the two tables. The db joins the two tables based on all columns in the two tables that have the same name.
 
         Example: 
@@ -392,7 +392,7 @@ NATURAL keyword
             (1) JOINs departments and employees on columns where they intersect
             (2) Creates a LEFT JOIN between employees and projects on employee_id column 
 
-CROSS JOINs 
+## CROSS JOINs 
     Produces a result set that includes each row from the first table joined with each row from the second table. 
     Result set is called a Cartesian product 
 
@@ -403,7 +403,7 @@ CROSS JOINs
 
         (1) JOIN the 4 columns together in a result set from left to right, not based on where they intersect
 
-UNIONs 
+## UNIONs 
     Used to connect two or more SELECT statements. The result set of each SELECT statement must have the same number of columns, and the data types of the corresponding columns in each table must be compatible. 
         Combines data from two or more result sets, instead of base tables.
         To sort the result of a UNION, add an ORDER BY cluase after the last SELECT statement.
@@ -462,3 +462,18 @@ UNIONs
                         RIGHT JOIN employees e
                         ON d.department_number = e.department_number
             ORDER BY dept_name;
+
+## Create
+
+Create a copy of the table to do testing with the following statement:  
+
+```sql
+CREATE TABLE invoices_copy AS
+SELECT *
+FROM invoices;
+```
+Whey you create tables like this, MySQL copies only the column defnitions and data, not the primary keys, foreign keys, or indexes. 
+
+## INSERT
+
+Usually use this statement to add a single row to a table. Can also add multiple rows.
