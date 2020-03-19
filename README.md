@@ -487,7 +487,7 @@ VALUES (3)
 	(97, '456789', 8344.50, 1, '2018-08-01', '2018-08-31');
 ```
 1. **INSERT INTO** clause that names the base table
-2. Optional list of columns
+2. Optional list of columns  
    If you do not include a column list in the INSERT INTO clause, you must specify the values in the same order as in the table, and there must be a value for each column. To add multiple rows, specify multiple (value) lines in the INSERT clause.  
    Use **NULL** to insert a NULL.
    Use **DEFAULT** to insert the default value or if a value is defined as autoincrement.
