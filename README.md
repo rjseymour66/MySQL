@@ -476,4 +476,21 @@ Whey you create tables like this, MySQL copies only the column defnitions and da
 
 ## INSERT
 
-Usually use this statement to add a single row to a table. Can also add multiple rows.
+Usually use this statement to add a single row to a table. Can also add multiple rows. You name the table on the INSERT clause, then add an optional list of columns, then add the new row
+
+> **Example**
+> The following example doe
+```sql
+INSERT INTO invoices (1)
+	(vendor_id, invoice_number, invoice_total, terms_id, invoice_date, invoice_due_date) (2)
+VALUES (3)
+	(97, '456789', 8344.50, 1, '2018-08-01', '2018-08-31');
+```
+1. INSERT clause that names the base table
+2. Optional list of columns
+
+   If you do not include a column list in the INSERT INTO clause, you must specify the values in the same order as in the table, and there must be a value for each column.
+3. VALUES clause that lists the values to add to the new row
+   You can omit columns that have default valudes, accept null values, or are automatically generated.
+
+To add multiple rows, add 
