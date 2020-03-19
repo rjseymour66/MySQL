@@ -65,7 +65,7 @@
     WHERE - clause that filters the rows in the base table by the boolean expression that takes a true, false, or NULL value. For example, WHERE value > 0
         If you omit the WHERE clause, all the rows in the base table are returned 
 
-        IN - used in WHERE clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically. 
+        ### IN - used in WHERE clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically. 
             Example:   WHERE terms_id IN (1, 2, 3);
                         WHERE vendor_state NOT IN ('CA', 'NV', 'OR');
 
@@ -511,3 +511,64 @@ WHERE invoice_total - payment_total - credit_total = 0;
 
 When you include a column list, you must list the columns in the same sequence as the **SELECT** clause of the subquery.  
 You can omit auto increment columns, columns that are defined with default values, and columns that allow null values.
+
+## UPDATE 
+Use the **UPDATE** statement to modify the data in one or more rows in the table.
+
+> **Example**
+> Update two columns for a single row  
+```sql
+UPDATE invoices                     (1)
+SET payment_date = '2018-09-21',    (2)
+		payment_total = 19351.18    
+WHERE invoice_number = '97/522';    (3)
+```
+
+1. The **UPDATE** clause names the table to be updated.
+2. The **SET** clause names the columns that you are updating and their new values  
+   You must update the columns with values that are compatible with the data type fo the column, including **NULL** and **DEFAULT**.
+3. The **WHERE** clause specifies the condition a row must meet to be updated. Also called the **search condition**.
+   > **Best practices** 
+   > The **WHERE** clause should refer to a primary or a foreign key.
+   > Before you execute an **UPDATE** statement, you should create a test **SELECT** statement with the same search condition in the **WHERE** clause. If the **SELECT** clause is correct, then you can copy its **WHERE** clause into the **UPDATE** statement.
+
+### Subquery in UPDATE statement
+Create a subquery in the **WHERE** clause of an **UPDATE** statement to identify the rows that you want to update.
+
+> **Example**
+```sql
+UPDATE invoices 
+SET terms_id = 1
+WHERE vendor_id = 
+	(SELECT vendor_id
+     FROM vendors
+     WHERE vendor_name = 'Pacific Bell');
+```
+A subquery is used in the **WHERE** clause to identify the invoices that are updated. Returns the vendor_id value for the vendor in the vendors table with the name "Pacific Bell".
+
+## DELETE
+Use the DELETE statement to remove one or more rows from a table. A foreign key constraint may prevent you from deleting a row. If that is the case, you can delete the row only if you delete all child rows for that row first.
+
+```sql
+DELETE FROM invoice_line_items  (1)
+WHERE invoice_id = 12;          (2)
+```
+1. **DELETE** clause specifies the name of the table and must include **FROM** keyword 
+2. The **WHERE** clause specifies a serch condition that identifies the rows to delete.  
+   This row is optional, but you should include it to ensure that you do not delete the entire table.  
+
+> **Best practices** 
+> Before you execute an **DELETE** statement, you should create a test **SELECT** statement with the same search condition in the **WHERE** clause. If the **SELECT** clause is correct, then you can copy its **WHERE** clause into the **DELETE** statement.
+
+### Subquery in DELETE statement
+To delete a row from the vendors table that has related rows in the invoices table, you must start by deleting the rows in the invoice_line_items table for the vendor's invoices, using a subquery.
+
+```sql
+DELETE FROM invoice_line_items  (1)
+WHERE invoice_id IN             (2)
+	(SELECT invoice_id
+     FROM invoices
+     WHERE vendor_id = 115);
+```
+1. **DELETE** clause specifies the name of the table and must include **FROM** keyword 
+2. **WHERE** clause uses a subquery to select all invoice IDs for the vendor from the invoices table. Then, the **DELETE** statement deletes all the invoice line items with those IDs.
