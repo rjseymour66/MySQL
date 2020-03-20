@@ -2,30 +2,32 @@
 
 Relational Databases are made of tables  
 Tables are made of rows and columns  
-Rows and columns are sometimes called records and fields, respectively  
-Column - represents some sort of entity, like the amount of an invoice  
-Row - contains a set of values for a single instance of the entity  
-Cell - interection of the rows and columns   
-Primary key - uniqueily identifies each row in the table.  
-   Usually a single column, but can be more than 1 column   
-Composite primary key - when a primary key uses two or more columns  
-Unique key - MySQL specific, not all dbs let you define one  
+Rows and columns are sometimes called records and fields, respectively 
+
+## Definitions
+
+**Column** - represents some sort of entity, like the amount of an invoice  
+**Row** - contains a set of values for a single instance of the entity  
+**Cell** - interection of the rows and columns   
+**Primary key** - uniqueily identifies each row in the table. Usually a single column, but can be more than 1 column   
+**Composite primary key** - when a primary key uses two or more columns  
+**Unique key** - MySQL specific, not all dbs let you define one  
    Non-primary key. Uniquely identifies each row in the table  
-Index - provides an efficient way to access data from a table based on the values in specific columns  
-Created automatically for a tables primary and non-primary keys  
-Foreign key - one or more columns in a table that refer to a primary key in another table (one-to-many relationship)  
-Referential integrity - makes sure that any changes to the data in the db do not create invalid relationships between tables.  
-Data type - determines the type of information that is stored in the column  
+**Index** - provides an efficient way to access data from a table based on the values in specific columns  
+   Created automatically for a tables primary and non-primary keys  
+**Foreign key** - one or more columns in a table that refer to a primary key in another table (one-to-many relationship)  
+**Referential integrity** - makes sure that any changes to the data in the db do not create invalid relationships between tables.  
+**Data type** - determines the type of information that is stored in the column  
    Try to assign the data type that minimizes the use of disk storage because that improves the performance of queries later  
       CHAR, VARCHAR 
       INT, DECIMAL
       FLOAT  
       DATE
-Null - value that is unknown, unavailable, or not applicable
-Default value - value that is assigned to the column if another value is not provided 
-Auto increment column - value is generated automatically by the DBMS 
-Entity-relationship (ER) or enhanced entity-relationship (EER) diagram - used to show how the tables in a database are defined and related 
-Result set / table - the data that is returned by a query 
+**Null** - value that is unknown, unavailable, or not applicable
+**Default value** - value that is assigned to the column if another value is not provided 
+**Auto increment column** - value is generated automatically by the DBMS 
+**Entity-relationship (ER)** or **enhanced entity-relationship (EER)** diagram - used to show how the tables in a database are defined and related 
+**Result set/table** - the data that is returned by a query 
 
     DML - data manipulation language - statements tha work with the data in a db 
         SELECT - gets data from one or more tables 
