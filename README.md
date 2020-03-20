@@ -541,8 +541,8 @@ UPDATE invoices
 SET terms_id = 1
 WHERE vendor_id = 
    (SELECT vendor_id
-   FROM vendors
-   WHERE vendor_name = 'Pacific Bell');
+    FROM vendors
+    WHERE vendor_name = 'Pacific Bell');
 ```
 A subquery is used in the **WHERE** clause to identify the invoices that are updated. Returns the vendor_id value for the vendor in the vendors table with the name "Pacific Bell".
 
