@@ -612,6 +612,45 @@ Use aggregate functions that operate on a series of values and return a singe su
 | COUNT([ALL or DISTINCT] expression)   | The number of non-null values in the expression |
 | COUNT(*)                              | The number of rows selected by the query |
 
+- **ALL** keyword is a default. This includes all values except for null values.
+- **COUNT(*)** includes null values
+- Use **DISTINCT** if you do not want duplicate values included.
+  - Most often, you will use **DISTINCT** with the **COUNT** function. 
+  - It does not have an effect on **MIN** or **MAX**
+
 **NOTE**: The expression in the **Result** column is typically just a column name.
 
-**Example**
+**Examples**
+```sql
+SELECT COUNT(*) AS number_of_invoices,
+   SUM(invoice_total - payment_total - credit_total) AS total_due   (1)
+FROM invoices
+WHERE invoice_total - payment_total - credit_total > 0;             (2)
+```
+1. **SUM** function calculates the balance due of an invoice using 3 columns and an alias. The result is a single value that represents the total amount due for all the selected invoices.
+2. The **WHERE** clause filters these to show where a balance is due.
+
+```sql
+SELECT 'After 1/1/2018' AS selection_date,
+   COUNT(*) AS number_of_invoices,                      (1)
+   ROUND(AVG(invoice_total), 2) AS avg_invoice_amt,     (2)
+   SUM(invoice_total) AS total_invoice_amt              (3)
+FROM invoices
+WHERE invoice_date > '2018-01-01';
+```
+1. Counts the number of rows that pass the **WHERE** clause filter
+2. Calulates the average amount of invoices that pass the **WHERE** clause filter
+3. Calcualtes the total amount of invoices that pass the **WHERE** clause filter
+
+```sql
+SELECT COUNT(DISTINCT vendor_id) AS number_of_vendors,  (1)
+	COUNT(vendor_id) AS number_of_invoices,             (2)
+    ROUND(AVG(invoice_total), 2) AS avg_invoice_amt,    (3)
+    SUM(invoice_total) AS total_invoice_amt             (4)
+FROM invoices
+WHERE invoice_date > '2018-01-01';
+```
+1. Counts the number of vendors that have a unique vendor_id value that also pass the **WHERE** clause filter
+2. Counts every invoice that passes the **WHERE** clause filter. This function is used for clarity - you would normally use use **COUNT(*)**.
+3. Rounds the average of the invoice_total column to 2 decimal places and uses an alias
+4. Sums the invoice_total column as an alias
