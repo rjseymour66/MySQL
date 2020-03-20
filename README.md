@@ -74,9 +74,13 @@ If you omit the **WHERE** clause, all the rows in the base table are returned
 >           **WHERE** vendor_state NOT IN ('CA', 'NV', 'OR');
 
 **BETWEEN** - used in **WHERE** clause. Compares the value of the test expression to the range of values specified in the BETWEEN phrase. If the value falls within this range, it is included in the results. You can use the NOT operator with this.
-> Example: **WHERE**  invoice BETWEEN '2018-06-01' AND '2018-06-30';
->          **WHERE**  vendor_zip_code NOT BETWEEN 93600 AND 93799;
-
+> Example:
+```sql
+**WHERE** invoice BETWEEN '2018-06-01' AND '2018-06-30';
+```
+```sql
+**WHERE**  vendor_zip_code NOT BETWEEN 93600 AND 93799;
+```
 **LIKE** or **REGEXP** - used in the **WHERE** clause. Use to retrieve rows that match a specific string pattern or mask. 
             **LIKE** Wildcards: 
                 % - matches any string of zero or more characters 
