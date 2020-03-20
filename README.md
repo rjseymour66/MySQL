@@ -603,14 +603,14 @@ WHERE invoice_id IN             (2)
 Use aggregate functions that operate on a series of values and return a singe summary value. Sometimes called _column functions_ because they typically operate on the values in columns. A query that contains one or more aggregate functions is typically referred to as a **summary query**.
 
 ## Most common aggregate functions
-| Function syntax               | Result      |
-| ------------------------------|-------------|
-| AVG([ALL or DISTINCT])         | The average of all non-null values in the expression |
-| SUM([ALL or DISTINCT])         | The total of the non-null values in the expression |
-| MIN([ALL or DISTINCT])         | The lowest non-null value in the expression |
-| MAX([ALL or DISTINCT])         | The highest non-null value in the expression |
-| COUNT([ALL or DISTINCT])       | The number of non-null values in the expression |
-| COUNT(*)                      | The number of rows selected by the query |
+| Function syntax                       | Result      |
+| --------------------------------------|-------------|
+| AVG([ALL or DISTINCT] expression)     | The average of all non-null values in the expression |
+| SUM([ALL or DISTINCT] expression)     | The total of the non-null values in the expression |
+| MIN([ALL or DISTINCT] expression)     | The lowest non-null value in the expression |
+| MAX([ALL or DISTINCT] expression)     | The highest non-null value in the expression |
+| COUNT([ALL or DISTINCT] expression)   | The number of non-null values in the expression |
+| COUNT(*)                              | The number of rows selected by the query |
 
 **NOTE**: The expression in the **Result** column is typically just a column name.
 
