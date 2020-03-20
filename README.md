@@ -70,12 +70,12 @@ When there is a space in the alias name, enclose the alias name in quotes. For e
 If you omit the **WHERE** clause, all the rows in the base table are returned 
 
 **IN** - used in **WHERE** clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically. 
-    > Example:  **WHERE** terms_id IN (1, 2, 3);
-    >           **WHERE** vendor_state NOT IN ('CA', 'NV', 'OR');
+> Example:  **WHERE** terms_id IN (1, 2, 3);
+>           **WHERE** vendor_state NOT IN ('CA', 'NV', 'OR');
 
 **BETWEEN** - used in **WHERE** clause. Compares the value of the test expression to the range of values specified in the BETWEEN phrase. If the value falls within this range, it is included in the results. You can use the NOT operator with this.
-    > Example: **WHERE**  invoice BETWEEN '2018-06-01' AND '2018-06-30';
-    >          **WHERE**  vendor_zip_code NOT BETWEEN 93600 AND 93799;
+> Example: **WHERE**  invoice BETWEEN '2018-06-01' AND '2018-06-30';
+>          **WHERE**  vendor_zip_code NOT BETWEEN 93600 AND 93799;
 
 **LIKE** or **REGEXP** - used in the **WHERE** clause. Use to retrieve rows that match a specific string pattern or mask. 
             **LIKE** Wildcards: 
