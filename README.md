@@ -72,18 +72,18 @@ If you omit the **WHERE** clause, all the rows in the base table are returned
 **IN** - used in **WHERE** clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically. 
 > Example:  
 ```sql
-**WHERE** terms_id IN (1, 2, 3);
+WHERE terms_id IN (1, 2, 3);
 ```
 ```sql
-**WHERE** vendor_state NOT IN ('CA', 'NV', 'OR');
+WHERE vendor_state NOT IN ('CA', 'NV', 'OR');
 ```
 **BETWEEN** - used in **WHERE** clause. Compares the value of the test expression to the range of values specified in the BETWEEN phrase. If the value falls within this range, it is included in the results. You can use the NOT operator with this.
 > Example:
 ```sql
-**WHERE** invoice BETWEEN '2018-06-01' AND '2018-06-30';
+WHERE invoice BETWEEN '2018-06-01' AND '2018-06-30';
 ```
 ```sql
-**WHERE**  vendor_zip_code NOT BETWEEN 93600 AND 93799;
+WHERE  vendor_zip_code NOT BETWEEN 93600 AND 93799;
 ```
 **LIKE** or **REGEXP** - used in the **WHERE** clause. Use to retrieve rows that match a specific string pattern or mask. 
             **LIKE** Wildcards: 
@@ -416,64 +416,70 @@ If you omit the **WHERE** clause, all the rows in the base table are returned
         (1) JOIN the 4 columns together in a result set from left to right, not based on where they intersect
 
 ## UNIONs 
-    Used to connect two or more SELECT statements. The result set of each SELECT statement must have the same number of columns, and the data types of the corresponding columns in each table must be compatible. 
-        Combines data from two or more result sets, instead of base tables.
-        To sort the result of a UNION, add an ORDER BY cluase after the last SELECT statement.
-        By default, UNIONs eliminates duplicate rows. To include dupes, add ALL keyword.
-        Column names in the final result set are taken from the first SELECT clause.
+Used to connect two or more SELECT statements. The result set of each SELECT statement must have the same number of columns, and the data types of the corresponding columns in each table must be compatible. 
 
-        Example: 
-            	SELECT invoice_number, vendor_name, '33% Payment' AS payment_type,
-                invoice_total AS total, invoice_total * 0.333 AS payment
-                FROM invoices JOIN vendors
-                    ON invoices.vendor_id = vendors.vendor_id
-                WHERE invoice_total > 10000
-            UNION
-                SELECT invoice_number, vendor_name, '50% Payment' AS payment_type,
-                    invoice_total AS total, invoice_total * 0.5 AS payment
-                FROM invoices JOIN vendors
-                    ON invoices.vendor_id = vendors.vendor_id
-                WHERE invoice_total BETWEEN 500 AND 10000
-            UNION
-                SELECT invoice_number, vendor_name, 'Full amount' AS payment_type,
-                    invoice_total AS total, invoice_total AS payment
-                FROM invoices JOIN vendors
-                    ON invoices.vendor_id = vendors.vendor_id
-                WHERE invoice_total < 500
-            ORDER BY payment_type, vendor_name, invoice_number;
+Combines data from two or more result sets, instead of base tables.
+To sort the result of a UNION, add an ORDER BY cluase after the last SELECT statement.
+By default, UNIONs eliminates duplicate rows. To include dupes, add ALL keyword.
+Column names in the final result set are taken from the first SELECT clause.
+
+> Example: 
+```sql
+    SELECT invoice_number, vendor_name, '33% Payment' AS payment_type,
+    invoice_total AS total, invoice_total * 0.333 AS payment
+    FROM invoices JOIN vendors
+        ON invoices.vendor_id = vendors.vendor_id
+    WHERE invoice_total > 10000
+UNION
+    SELECT invoice_number, vendor_name, '50% Payment' AS payment_type,
+        invoice_total AS total, invoice_total * 0.5 AS payment
+    FROM invoices JOIN vendors
+        ON invoices.vendor_id = vendors.vendor_id
+    WHERE invoice_total BETWEEN 500 AND 10000
+UNION
+    SELECT invoice_number, vendor_name, 'Full amount' AS payment_type,
+        invoice_total AS total, invoice_total AS payment
+    FROM invoices JOIN vendors
+        ON invoices.vendor_id = vendors.vendor_id
+    WHERE invoice_total < 500
+ORDER BY payment_type, vendor_name, invoice_number;
+```
         
-        Example: 
-            Combining result sets from the same table. 
+> Example:
+> Combining result sets from the same table.
+```sql
+    SELECT 'Active' AS source, invoice_number, invoice_date, invoice_total  (1)
+    FROM invoices 
+    WHERE invoice_total - payment_total - credit_total > 0
+UNION 
+    SELECT 'Paid' AS source, invoice_number, invoice_date, invoice_total    (2)
+    FROM invoices 
+    WHERE invoice_total - payment_total - credit_total <= 0
+ORDER BY invoice_total DESC;
+```
 
-                SELECT 'Active' AS source, invoice_number, invoice_date, invoice_total  (1)
-                FROM invoices 
-                WHERE invoice_total - payment_total - credit_total > 0
-            UNION 
-                SELECT 'Paid' AS source, invoice_number, invoice_date, invoice_total    (2)
-                FROM invoices 
-                WHERE invoice_total - payment_total - credit_total <= 0
-            ORDER BY invoice_total DESC;
-
-            (1) Rows that have a balance due. Adds column named 'source' to indicate that each row is 'Active'
-            (2) Rows that are paid in full. Adds column named 'source' to indicate that each row is 'Paid'
+(1) Rows that have a balance due. Adds column named 'source' to indicate that each row is 'Active'
+(2) Rows that are paid in full. Adds column named 'source' to indicate that each row is 'Paid'
     
-    Simulate a FULL OUTER JOIN with a UNION 
-        Simulate a FULL OUTER JOIN by creating a UNION that combines the result sets for a left outer join and a right outer join.
-        NULL is displayed in rows with no values 
+### Simulate a FULL OUTER JOIN with a UNION 
+Simulate a FULL OUTER JOIN by creating a UNION that combines the result sets for a left outer join and a right outer join.
+NULL is displayed in rows with no values 
 
-        Example: 
-            	SELECT department_name AS dept_name, d.department_number AS d_dept_no,
-                    e.department_number AS e_dept_no, last_name
-                FROM departments d
-                    LEFT JOIN employees e
-                    ON d.department_number = e.department_number
-            UNION
-                SELECT department_name AS dept_name, d.department_number AS d_dept_no,
-                    e.department_number AS e_dept_no, last_name
-                    FROM departments d
-                        RIGHT JOIN employees e
-                        ON d.department_number = e.department_number
-            ORDER BY dept_name;
+> Example: 
+```sql
+    SELECT department_name AS dept_name, d.department_number AS d_dept_no,
+        e.department_number AS e_dept_no, last_name
+    FROM departments d
+        LEFT JOIN employees e
+        ON d.department_number = e.department_number
+UNION
+    SELECT department_name AS dept_name, d.department_number AS d_dept_no,
+        e.department_number AS e_dept_no, last_name
+        FROM departments d
+            RIGHT JOIN employees e
+            ON d.department_number = e.department_number
+ORDER BY dept_name;
+```
 
 ## Create
 
