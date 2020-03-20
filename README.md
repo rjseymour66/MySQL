@@ -481,9 +481,9 @@ Usually use this statement to add a single row to a table. Can also add multiple
 > **Example**
 ```sql
 INSERT INTO invoices (1)
-	(vendor_id, invoice_number, invoice_total, terms_id, invoice_date, invoice_due_date) (2)
+   (vendor_id, invoice_number, invoice_total, terms_id, invoice_date, invoice_due_date) (2)
 VALUES (3)
-	(97, '456789', 8344.50, 1, '2018-08-01', '2018-08-31');
+   (97, '456789', 8344.50, 1, '2018-08-01', '2018-08-31');
 ```
 1. **INSERT INTO** clause that names the base table
 2. Optional list of columns  
@@ -502,9 +502,9 @@ A **subquery** is a **SELECT** statement that is coded within another SQL statem
 
 ```sql
 INSERT INTO invoice_archive
-	(invoice_id, vendor_id, invoice_number, invoice_total, credit_total, payment_total, terms_id, invoice_date, invoice_due_date)
+   (invoice_id, vendor_id, invoice_number, invoice_total, credit_total, payment_total, terms_id, invoice_date, invoice_due_date)
 SELECT 
-	invoice_id, vendor_id, invoice_number, invoice_total, credit_total, payment_total, terms_id, invoice_data, invoice_due_date
+    invoice_id, vendor_id, invoice_number, invoice_total, credit_total, payment_total, terms_id, invoice_data, invoice_due_date
 FROM invoices
 WHERE invoice_total - payment_total - credit_total = 0;
 ```  
@@ -520,7 +520,7 @@ Use the **UPDATE** statement to modify the data in one or more rows in the table
 ```sql
 UPDATE invoices                     (1)
 SET payment_date = '2018-09-21',    (2)
-	payment_total = 19351.18    
+   payment_total = 19351.18    
 WHERE invoice_number = '97/522';    (3)
 ```
 
