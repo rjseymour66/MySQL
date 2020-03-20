@@ -520,7 +520,7 @@ Use the **UPDATE** statement to modify the data in one or more rows in the table
 ```sql
 UPDATE invoices                     (1)
 SET payment_date = '2018-09-21',    (2)
-		payment_total = 19351.18    
+	payment_total = 19351.18    
 WHERE invoice_number = '97/522';    (3)
 ```
 
@@ -566,9 +566,9 @@ To delete a row from the vendors table that has related rows in the invoices tab
 ```sql
 DELETE FROM invoice_line_items  (1)
 WHERE invoice_id IN             (2)
-	(SELECT invoice_id
-     FROM invoices
-     WHERE vendor_id = 115);
+   (SELECT invoice_id
+   FROM invoices
+   WHERE vendor_id = 115);
 ```
 1. **DELETE** clause specifies the name of the table and must include **FROM** keyword 
 2. **WHERE** clause uses a subquery to select all invoice IDs for the vendor from the invoices table. Then, the **DELETE** statement deletes all the invoice line items with those IDs.
