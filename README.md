@@ -25,99 +25,98 @@ INT, DECIMAL
 FLOAT  
 DATE
 ```
-**Null** - value that is unknown, unavailable, or not applicable
-**Default value** - value that is assigned to the column if another value is not provided 
-**Auto increment column** - value is generated automatically by the DBMS 
-**Entity-relationship (ER)** or **enhanced entity-relationship (EER)** diagram - used to show how the tables in a database are defined and related 
-**Result set/table** - the data that is returned by a query 
+**Null** - value that is unknown, unavailable, or not applicable  
+**Default value** - value that is assigned to the column if another value is not provided  
+**Auto increment column** - value is generated automatically by the DBMS  
+**Entity-relationship (ER)** or **enhanced entity-relationship (EER)** diagram - used to show how the tables in a database are defined and related  
+**Result set/table** - the data that is returned by a query  
+**DML** - data manipulation language - statements tha work with the data in a db 
+  **SELECT** - gets data from one or more tables 
+  **INSERT** - adds new rows to a table 
+  **UPDATE** - changes existing rows in a table 
+  **DELETE** - deletes existing rows from a table 
+**DDL** - data definition language - statements that create databases and work with the objects within a db (usually used by db admins)
+  **CREATE DATABASE** - creates a new db on the server 
+  **CREATE TABLE** - creates a new table in a db 
+  **CREATE INDEX** - creates a new index for a table 
+  **ALTER TABLE** - changes the definition of an existing table 
+  **ALTER INDEX** - changes the structure of an existing index 
+  **DROP DATABASE** - deletes an existing db and all of its tables 
+  **DROP TABLE** - deletes an existing table 
+  **DROP INDEX** - deletes an existing index 
 
-    DML - data manipulation language - statements tha work with the data in a db 
-        SELECT - gets data from one or more tables 
-        INSERT - adds new rows to a table 
-        UPDATE - changes existing rows in a table 
-        DELETE - deletes existing rows from a table 
-    DDL - data definition language - statements that create databases and work with the objects within a db (usually used by db admins)
-        CREATE DATABASE - creates a new db on the server 
-        CREATE TABLE - creates a new table in a db 
-        CREATE INDEX - creates a new index for a table 
-        ALTER TABLE - changes the definition of an existing table 
-        ALTER INDEX - changes the structure of an existing index 
-        DROP DATABASE - deletes an existing db and all of its tables 
-        DROP TABLE - deletes an existing table 
-        DROP INDEX - deletes an existing index 
-
-    Database object - any defined object in a db that is used to store or reference data. 
-        Anything that is created from a CREATE command is a db object, including: 
-            Table 
-            View
-            Sequence
-            Index 
-            Synonym
+**Database object** - any defined object in a db that is used to store or reference data. 
+Anything that is created from a CREATE command is a db object, including: 
+- Table 
+- View
+- Sequence
+- Index 
+- Synonym
 
 ## Building queries 
     Best practice to build queries one clause at a time.
 
-## Statements 
-    SELECT - clause that names the columns to be retrieved
-    INSERT INTO - clause that names the columns whose values are supplied in the VALUES clause 
-    VALUES - clause that lists the data that is inserted with an INSERT clause
-    UPDATE - clause that changes the data in one or more rows of a table
-    DELETE - clause that deletes one or more rows from a table 
-    FROM - clause that names the base table from which the query retrieves the data 
-    AS - clause that assigns a new name to a group of columns. The new name is the column alias 
-        Called a calculated value because it exists only in this query 
-        When there is a space in the alias name, enclose the alias name in quotes. For example, 'Test Row'
-    WHERE - clause that filters the rows in the base table by the boolean expression that takes a true, false, or NULL value. For example, WHERE value > 0
-        If you omit the WHERE clause, all the rows in the base table are returned 
+# Statements 
+**SELECT** - clause that names the columns to be retrieved
+**INSERT INTO** - clause that names the columns whose values are supplied in the **VALUES** clause 
+**VALUES** - clause that lists the data that is inserted with an **INSERT** clause
+**UPDATE** - clause that changes the data in one or more rows of a table
+**DELETE** - clause that deletes one or more rows from a table 
+**FROM** - clause that names the base table from which the query retrieves the data 
+**AS** - clause that assigns a new name to a group of columns. The new name is the column alias 
+Called a calculated value because it exists only in this query 
+When there is a space in the alias name, enclose the alias name in quotes. For example, 'Test Row'
+**WHERE** - clause that filters the rows in the base table by the boolean expression that takes a true, false, or NULL value. For example, **WHERE** value > 0
+If you omit the **WHERE** clause, all the rows in the base table are returned 
 
-        ### IN - used in WHERE clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically. 
-            Example:   WHERE terms_id IN (1, 2, 3);
-                        WHERE vendor_state NOT IN ('CA', 'NV', 'OR');
+**IN** - used in **WHERE** clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically. 
+    > Example:  **WHERE** terms_id IN (1, 2, 3);
+    >           **WHERE** vendor_state NOT IN ('CA', 'NV', 'OR');
 
-        BETWEEN - used in WHERE clause. Compares the value of the test expression to the range of values specified in the BETWEEN phrase. If the value falls within this range, it is included in the results. You can use the NOT operator with this.
-            Example: WHERE  invoice BETWEEN '2018-06-01' AND '2018-06-30';
-                     WHERE  vendor_zip_code NOT BETWEEN 93600 AND 93799;
+**BETWEEN** - used in **WHERE** clause. Compares the value of the test expression to the range of values specified in the BETWEEN phrase. If the value falls within this range, it is included in the results. You can use the NOT operator with this.
+    > Example: **WHERE**  invoice BETWEEN '2018-06-01' AND '2018-06-30';
+    >          **WHERE**  vendor_zip_code NOT BETWEEN 93600 AND 93799;
 
-        LIKE or REGEXP - used in the WHERE clause. Use to retrieve rows that match a specific string pattern or mask. 
-            LIKE Wildcards: 
+**LIKE** or **REGEXP** - used in the **WHERE** clause. Use to retrieve rows that match a specific string pattern or mask. 
+            **LIKE** Wildcards: 
                 % - matches any string of zero or more characters 
-                    WHERE vendor_city LIKE 'SAN%'; returns San Diego, Santa Ana
+                    **WHERE** vendor_city LIKE 'SAN%'; returns San Diego, Santa Ana
                 _ - matches any single character 
-                    WHERE vendor_name LIKE 'COMPU_ER'; returns Compuserve, Computerworld
+                    **WHERE** vendor_name LIKE 'COMPU_ER'; returns Compuserve, Computerworld
             REGEXP special characters/constructs:
                 ^ - matches the pattern to the beginning of the value being tested 
-                    WHERE vendor_city REGEXP '^SA'; returns Pasadena, Santa Ana
+                    **WHERE** vendor_city REGEXP '^SA'; returns Pasadena, Santa Ana
                 $ - matches the pattern to the end of the value being tested
-                    WHERE vendor_city REGEXP 'NA$'; returns Gardena, Pasadena 
+                    **WHERE** vendor_city REGEXP 'NA$'; returns Gardena, Pasadena 
                 . - matches any single character 
                 [charlist] - mathces any single character listed within the brackets
-                    WHERE vendor_city REGEXP 'N[CV]'; returns NC, NV but not NJ or NY 
+                    **WHERE** vendor_city REGEXP 'N[CV]'; returns NC, NV but not NJ or NY 
                 [char1 - char2] - matches any single character within the given range 
-                    WHERE vendor_city REGEXP 'N[A-J]'; returns NC, NV but not NJ or NY 
+                    **WHERE** vendor_city REGEXP 'N[A-J]'; returns NC, NV but not NJ or NY 
                 | - separates two string patterns and matches either one
-                    WHERE vendor_city REGEXP 'RS|SN'; returns Trave(rs)e City, Fre(sn)o
+                    **WHERE** vendor_city REGEXP 'RS|SN'; returns Trave(rs)e City, Fre(sn)o
 
-                    WHERE vendor_city REGEXP '[A-Z][AEIOU]N$'; returns any vendor_city that ends with any letter, then a vowel, then the letter 'n'
-        IS NULL - used in WHERE clause. Can use IS NOT NULL too.
+                    **WHERE** vendor_city REGEXP '[A-Z][AEIOU]N$'; returns any vendor_city that ends with any letter, then a vowel, then the letter 'n'
+        IS NULL - used in **WHERE** clause. Can use IS NOT NULL too.
             Example:
-                SELECT * FROM null_sample 
-                WHERE invoice_total = 0;
+                **SELECT** * FROM null_sample 
+                **WHERE** invoice_total = 0;
 
-                SELECT * 
+                **SELECT** * 
                 FROM null_sample 
-                WHERE invoice_total IS NOT NULL;
+                **WHERE** invoice_total IS NOT NULL;
 
 
     ORDER BY - the clause that specifies the sort order for the rows in the result set. ASC is the default. 
         Can use column names, ASC, DESC, expressions, alias, column positions.
         To sort by more than one column, you list the values in the ORDER BY clause in the order that you want them sorted by. Called a nested sort. 
             Example:
-                SELECT vendor_name,
+                **SELECT** vendor_name,
                     CONCAT(vendor_city, ', ', vendor_state, ' ', vendor_zip_code) AS address 
                 FROM vendors 
                 ORDER BY vendor_name DESC;
 
-                SELECT vendor_name,
+                **SELECT** vendor_name,
                     CONCAT(vendor_city, ', ', vendor_state, ' ', vendor_zip_code) AS address
                 FROM vendors
                 ORDER BY CONCAT(vendor_contact_last_name, vendor_contact_first_name);
@@ -126,16 +125,16 @@ DATE
         LIMIT [offset, ] row count
         The offset is 0-indexed, so the following clause returns 5 rows that start at the index 3:
             Example: 
-                SELECT invoice_id, vendor_id, invoice_total
+                **SELECT** invoice_id, vendor_id, invoice_total
                 FROM invoices
                 ORDER BY invoice_id
                 LIMIT 2, 3;
 
-    ** SELECT filters the columns, WHERE filters the rows 
+    **SELECT** filters the columns, **WHERE** filters the rows 
 
         Model
 
-        SELECT column_1, column_2, column_3 AS new_column_name
+        **SELECT** column_1, column_2, column_3 AS new_column_name
         FROM table_1
         WHERE column_1 - column_2 > 0
         ORDER BY column_1 
