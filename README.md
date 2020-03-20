@@ -605,11 +605,11 @@ Use aggregate functions that operate on a series of values and return a singe su
 ## Most common aggregate functions
 | Function syntax               | Result      |
 | ------------------------------|-------------|
-| AVG([ALL | DISTINCT])         | The average of all non-null values in the expression |
-| SUM([ALL | DISTINCT])         | The total of the non-null values in the expression |
-| MIN([ALL | DISTINCT])         | The lowest non-null value in the expression |
-| MAX([ALL | DISTINCT])         | The highest non-null value in the expression |
-| COUNT([ALL | DISTINCT])       | The number of non-null values in the expression |
+| AVG([ALL or DISTINCT])         | The average of all non-null values in the expression |
+| SUM([ALL or DISTINCT])         | The total of the non-null values in the expression |
+| MIN([ALL or DISTINCT])         | The lowest non-null value in the expression |
+| MAX([ALL or DISTINCT])         | The highest non-null value in the expression |
+| COUNT([ALL or DISTINCT])       | The number of non-null values in the expression |
 | COUNT(*)                      | The number of rows selected by the query |
 
 **NOTE**: The expression in the **Result** column is typically just a column name.
