@@ -369,51 +369,56 @@ WHERE  vendor_zip_code NOT BETWEEN 93600 AND 93799;
             ORDER BY department_name, last_name;
 
 ## USING keyword 
-    Use the USING clause instead of an ON clause during an equijoin to specify the join. To join tables by multiple columns, put the multiple columns in the parentheses, separated by a column 
-        equijoin/equi-join - When you use the equal operator to join two tables on a common column. 
-            Common for the columns that are being compared to have the same name.
-        
-        Example 1:
-            SELECT invoice_number, vendor_name
-            FROM vendors
-                JOIN invoices USING (vendor_id) (1)
-            ORDER BY invoice_number;
+Use the USING clause instead of an ON clause during an equijoin to specify the join. To join tables by multiple columns, put the multiple columns in the parentheses, separated by a column 
 
-            (1) USING (vendor_id) replaced 'ON vendors.vendor_id = invoices.vendor_id'
+**equijoin/equi-join** - When you use the equal operator to join two tables on a common column. 
+Common for the columns that are being compared to have the same name.
         
-        Example 2:
-            SELECT department_name, last_name, project_number
-            FROM departments
-                JOIN employees USING (department_number)    (1)
-                LEFT JOIN projects USING (employee_id)      (2)
-            ORDER BY department_name;
-
-            (1) INNER JOIN between departments and employees on the department_number column 
-            (2) LEFT JOIN between employees and projects using the employee_id column 
+>Example 1:
+```sql
+SELECT invoice_number, vendor_name
+FROM vendors
+    JOIN invoices USING (vendor_id) (1)
+ORDER BY invoice_number;
+```
+(1) USING (vendor_id) replaced 'ON vendors.vendor_id = invoices.vendor_id'
+        
+> Example 2:
+```sql
+SELECT department_name, last_name, project_number
+FROM departments
+    JOIN employees USING (department_number)    (1)
+    LEFT JOIN projects USING (employee_id)      (2)
+ORDER BY department_name;
+```
+(1) INNER JOIN between departments and employees on the department_number column 
+(2) LEFT JOIN between employees and projects using the employee_id column 
 
 ## NATURAL keyword 
-    You don't specific the column that's used to join the two tables. The db joins the two tables based on all columns in the two tables that have the same name.
+You don't specific the column that's used to join the two tables. The db joins the two tables based on all columns in the two tables that have the same name.
 
-        Example: 
-            SELECT department_name AS dept_name, last_name, project_number
-            FROM departments
-                NATURAL JOIN employees                      (1)
-                LEFT JOIN projects USING (employee_id)      (2)
-            ORDER BY department_name;
-
-            (1) JOINs departments and employees on columns where they intersect
-            (2) Creates a LEFT JOIN between employees and projects on employee_id column 
+> Example: 
+```sql
+SELECT department_name AS dept_name, last_name, project_number
+FROM departments
+    NATURAL JOIN employees                      (1)
+    LEFT JOIN projects USING (employee_id)      (2)
+ORDER BY department_name;
+```
+(1) JOINs departments and employees on columns where they intersect
+(2) Creates a LEFT JOIN between employees and projects on employee_id column 
 
 ## CROSS JOINs 
-    Produces a result set that includes each row from the first table joined with each row from the second table. 
-    Result set is called a Cartesian product 
+Produces a result set that includes each row from the first table joined with each row from the second table. 
+Result set is called a Cartesian product 
 
-    Example:
-        SELECT departments.department_number, department_name, employee_id, last_name
-        FROM departments CROSS JOIN employees   (1)
-        ORDER BY departments.department_number;
-
-        (1) JOIN the 4 columns together in a result set from left to right, not based on where they intersect
+> Example:
+```sql
+SELECT departments.department_number, department_name, employee_id, last_name
+FROM departments CROSS JOIN employees   (1)
+ORDER BY departments.department_number;
+```
+(1) JOIN the 4 columns together in a result set from left to right, not based on where they intersect
 
 ## UNIONs 
 Used to connect two or more SELECT statements. The result set of each SELECT statement must have the same number of columns, and the data types of the corresponding columns in each table must be compatible. 
@@ -445,7 +450,7 @@ UNION
 ORDER BY payment_type, vendor_name, invoice_number;
 ```
         
-> Example:
+> Example:  
 > Combining result sets from the same table.
 ```sql
     SELECT 'Active' AS source, invoice_number, invoice_date, invoice_total  (1)
