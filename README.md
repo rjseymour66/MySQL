@@ -19,12 +19,10 @@ Created automatically for a tables primary and non-primary keys
 **Referential integrity** - makes sure that any changes to the data in the db do not create invalid relationships between tables.  
 **Data type** - determines the type of information that is stored in the column  
 Try to assign the data type that minimizes the use of disk storage because that improves the performance of queries later  
-```
-CHAR, VARCHAR 
-INT, DECIMAL
-FLOAT  
-DATE
-```
+- CHAR, VARCHAR 
+- INT, DECIMAL
+- FLOAT  
+- DATE
 **Null** - value that is unknown, unavailable, or not applicable  
 **Default value** - value that is assigned to the column if another value is not provided  
 **Auto increment column** - value is generated automatically by the DBMS  
@@ -52,6 +50,10 @@ Anything that is created from a CREATE command is a db object, including:
 - Sequence
 - Index 
 - Synonym
+
+**scalar function** - a query that operates on a single value and returns a single value
+**aggregate function** - a query that operates on a series of values and returns a single summary value. Sometimes called _column functions_ because they typically operate on the values in columns. 
+**summary query** - a query that contains one or more aggregate functions.
 
 ## Building queries 
     Best practice to build queries one clause at a time.
@@ -598,3 +600,18 @@ WHERE invoice_id IN             (2)
 2. **WHERE** clause uses a subquery to select all invoice IDs for the vendor from the invoices table. Then, the **DELETE** statement deletes all the invoice line items with those IDs.
 
 # Summary queries
+Use aggregate functions that operate on a series of values and return a singe summary value. Sometimes called _column functions_ because they typically operate on the values in columns. A query that contains one or more aggregate functions is typically referred to as a **summary query**.
+
+## Most common aggregate functions
+| Function syntax               | Result      |
+| ------------------------------|-------------|
+| AVG([ALL | DISTINCT])         | The average of all non-null values in the expression |
+| SUM([ALL | DISTINCT])         | The total of the non-null values in the expression |
+| MIN([ALL | DISTINCT])         | The lowest non-null value in the expression |
+| MAX([ALL | DISTINCT])         | The highest non-null value in the expression |
+| COUNT([ALL | DISTINCT])       | The number of non-null values in the expression |
+| COUNT(*)                      | The number of rows selected by the query |
+
+**NOTE**: The expression in the **Result** column is typically just a column name.
+
+**Example**
