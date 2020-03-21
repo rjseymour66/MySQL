@@ -800,3 +800,31 @@ WHERE invoice_total > 5000;
 ```
 1. When you add an **ORDER BY** clause in the **OVER(PARTITION BY)** clause, the rows within each partition are sorted and the values from one row to the next are cumulative.
   - Includes a **frame**, which is all of the rows from the start of the partition through the current row. 
+
+## Frames
+
+The number of rows before and after the current row (ROW) or a range of values based on the value of the current row (RANGE).
+
+A frame defines a subset of the current partition. Beacuse a frame is relateve to the current row, it can move within a partition as the current row changes.
+
+If you specify just the starting row for a frame, the ending row is the current row. To specify both a sstarting and ending rtow, you use the **BETWEEN clause**. TWhen you use **BETWEEN**, the starting row for a frame must not come after the ending row.
+
+| Value                 | Description                   |
+|:----------------------|:-----------------------------
+|CURRENT ROW            | The frame starts or ends with the current row.
+|UNBOUNDED PRECEDING    | The frame starts or ends with the first row in the partition.
+|UNBOUNDED FOLLOWING    | The frame starts or ends with the last row in the partition.
+|expr PRECEDING         | With **ROWS**, the frame starts expr rows before the current row. With **RANGE**, the frame starts with the first row before the current row whose value is expr less than the value of the current row.
+|expr FOLLOWING         | With **ROWS**, the frame starts expr rows after the current row. With **RANGE**, the frame starts with the last row after the current row whose fvalue is expr greater than the value of the current row.
+
+
+```sql
+SELECT vendor_id, invoice_date, invoice_total,
+   SUM(invoice_total) OVER() AS total_invoices,
+   SUM(invoice_total) OVER(PARTITION BY vendor_id ORDER BY invoice_date
+      ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)     (1)
+      AS vendor_total
+FROM invoices
+WHERE invoice_date BETWEEN '2018-04-01' AND '2018-04-30';
+```
+1. Selects the rows between the frist row in the partion and the current row.
