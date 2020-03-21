@@ -659,6 +659,8 @@ WHERE invoice_date > '2018-01-01';
 The GROUP BY clause determines how the selected rows are grouped, and the HAVING cluase determines which groups are included in the final results. In **GROUP BY**, you can list more than one expression, separated by commas, and they are grouped in ascending sequence.
 These clauses are included after the **WHERE** clause and before the **ORDER BY** clause. 
 
+When you use **GROUP BY**, a single row is returned for each unique set of values in the grouped columns. For example, if a result set is grouped by the vendor_id column, only one row is returned for each vendor, and that vendor is summarized by the aggregate functions that are included in the **SELECT** clause.
+
 **Examples**
 
 ```sql
@@ -764,3 +766,37 @@ GROUP BY invoice_date, payment_date WITH ROLLUP;
 ```
 1. If the invoice_date column contains a null value because it's in a summary row, 'Grand totals' is displayed in the column.
 2. If the payment_date column contains a null value because it's in a summary row, 'Invoice date totals' is displayed in the column.
+
+## Window functions
+Similar to **GROUP BY**, except that the groups (or partitions), are not collapsed to a single row - all rows in the result set are returned. 
+
+To start, you code an aggregate window function by including the **OVER** clause. This clause defines the window that's used by the aggregate function.
+**OVER()** - uses a single parition. All the rows for that column will be the same value
+**OVER(PARTITION BY [column_name])** - partitions the result set by the column parameter. The aggregate function is performed and grouped by each unique value in the specified column.
+A **window** consists of all the rows that are needed to evaluate the function for the current row. 
+
+**Example**
+```sql
+SELECT vendor_id, invoice_date, invoice_total,
+   SUM(invoice_total) OVER() AS total_invoices,                     (1)
+   SUM(invoice_total) OVER(PARTITION BY vendor_id) AS vendor_total  (2)
+FROM invoices
+WHERE invoice_total > 5000;
+```
+1. Uses the **SUM** function to calculate a total of the invoice_total column.
+  - The empty **OVER()** clause means that all of the rows in the result set are included in a single partition. This means that the total_invoices column contains the same value for each column, which is the total of all of the invoices in the result set.
+  - To calculate the total of all invoices, the **SUM** functino for each row needs a window into all of the other rows in the result set.
+2. The **PARTITION BY** clause partitions the result set by the vendor_id column.
+  - This means that the sum of the invoice_total column  is calculated for each vendor instead of all of the vendors.
+  - To calculate the total of all invoices for each vendor, the **SUM** function for each row needs a window into all the other rows for the same vendor.
+  
+```sql
+SELECT vendor_id, invoice_date, invoice_total,
+   SUM(invoice_total) OVER() AS total_invoices,
+   SUM(invoice_total) OVER(PARTITION BY vendor_id
+      ORDER BY invoice_total) AS vendor_total       (1)
+FROM invoices
+WHERE invoice_total > 5000;
+```
+1. When you add an **ORDER BY** clause in the **OVER(PARTITION BY)** clause, the rows within each partition are sorted and the values from one row to the next are cumulative.
+  - Includes a **frame**, which is all of the rows from the start of the partition through the current row. 
