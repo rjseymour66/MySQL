@@ -828,3 +828,49 @@ FROM invoices
 WHERE invoice_date BETWEEN '2018-04-01' AND '2018-04-30';
 ```
 1. Selects the rows between the frist row in the partion and the current row.
+
+**peer** - a row that has the same value as other rows in the sort column. 
+
+The following example 
+```sql
+SELECT vendor_id, invoice_date, invoice_total,
+   SUM(invoice_total) OVER() AS total_invoices,
+   SUM(invoice_total) OVER(PARTITION BY vendor_id ORDER BY invoice_date
+   RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)                       (1)
+         AS vendor_total
+FROM invoices
+WHERE invoice_date BETWEEN '2018-04-01' AND '2018-04-30';
+```
+1. This frame includes all of the rows within the partition, along with the current row and any of its peers. 
+
+The following example calculates the 3-month avergage of the sum of invoice totals.
+
+```sql
+SELECT MONTH(invoice_date) AS month, SUM(invoice_total) AS total_invoices,
+   ROUND(AVG(SUM(invoice_total)) OVER(ORDER BY MONTH(invoice_date)
+      RANGE BETWEEN 1 PRECEDING AND 1 FOLLOWING), 2) AS 3_month_avg         (1)
+FROM invoices
+GROUP BY MONTH (invoice_date);
+```
+1. Uses **RANGE** and indicates the the current month, 1 month before, and 1 month after should be used to calculate the average. If there is no preceding or subsequent row, then just the available rows are used to calculate the average.
+
+## Named windows
+
+In some cases, you may need to code a **SELECT** statemetn with two or more aggregate functions that use the same window. If so, then you may want to use a **named window** so that you don't have to repeat the definition for the window for each function. 
+
+Use a **WINDOW** clause after the **HAVING** clause and before the **ORDER BY**, when included.  
+
+Similar to using an alias for a column name.
+
+```sql
+SELECT vendor_id, invoice_date, invoice_total,
+   SUM(invoice_total) OVER vendor_window AS vendor_total,           (2)
+   ROUND(AVG(invoice_total) OVER vendor_window, 2) AS vendor_avg,   (2)
+   MAX(invoice_total) OVER vendor_window AS vendor_max,             (2)
+   MIN(invoice_total) OVER vendor_window AS vendor_min              (2)
+FROM invoices
+WHERE invoice_total > 5000
+WINDOW vendor_window AS (PARTITION BY vendor_id);           (1)
+```
+1. Paritions the rows in the result set by the vendor_id column.
+2. Applies the partition defined in the **WINDOW** clause to each **OVER** clause
