@@ -6,6 +6,65 @@ Rows and columns are sometimes called records and fields, respectively
 
 ## Definitions
 
+<dl>
+    <dt><em>Column</em></dt>
+    <dd>Represents some sort of entity, like the amount of an invoice</dd>
+    <dt><em>Row</em></dt>
+    <dd>Contains a set of values for a single instance of the entity </dd>
+    <dt><em>Cell</em></dt>
+    <dd>Intersection of the rows and columns</dd>
+    <dt><em>Primary key</em></dt>
+    <dd>Uniqueily identifies each row in the table. Usually a single column, but can be more than 1 column</dd>
+    <dt><em>Composite primary key</em></dt>
+    <dd>When a primary key uses two or more columns</dd>
+    <dt><em>Unique key</em></dt>
+    <dd>MySQL specific, not all dbs let you define one.</dd>
+    <dt><em>Non-primary key</em></dt>
+    <dd>Uniquely identifies each row in the table.</dd>
+    <dt><em>Index</em></dt>
+    <dd>Provides an efficient way to access data from a table based on the values in specific columns.<br>Created automatically for a tables primary and non-primary keys</dd>
+    <dt><em>Foreign key</em></dt>
+    <dd>One or more columns in a table that refer to a primary key in another table (one-to-many relationship)</dd>
+    <dt><em>Referential integrity</em></dt>
+    <dd>Makes sure that any changes to the data in the db do not create invalid relationships between tables.</dd>
+    <dt><em>Data type</em></dt>
+    <dd>Determines the type of information that is stored in the column  </dd>
+
+
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+    <dt><em></em></dt>
+    <dd></dd>
+
+</dl>
+
+
 **Column** - represents some sort of entity, like the amount of an invoice  
 **Row** - contains a set of values for a single instance of the entity  
 **Cell** - interection of the rows and columns   
@@ -856,7 +915,7 @@ GROUP BY MONTH (invoice_date);
 
 ## Named windows
 
-In some cases, you may need to code a **SELECT** statemetn with two or more aggregate functions that use the same window. If so, then you may want to use a **named window** so that you don't have to repeat the definition for the window for each function. 
+In some cases, you may need to code a **SELECT** statement with two or more aggregate functions that use the same window. If so, then you may want to use a **named window** so that you don't have to repeat the definition for the window for each function. 
 
 Use a **WINDOW** clause after the **HAVING** clause and before the **ORDER BY**, when included.  
 
