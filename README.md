@@ -1155,9 +1155,134 @@ FROM
    FROM vendors v JOIN invoices i
          ON v.vendor_id = i.vendor_id
    GROUP BY vendor_state, vendor_name
-) t
+) t                                             (3)
 GROUP BY vendor_state
 ORDER BY vendor_state;
 ```
-1. The subquery returns the sum of the invoice_total 
+1. The subquery returns the sum of the invoice_total for every vendor that is in the invoices table
 2. Alias in the subquery is used in the main query.
+3. Alias for the subquery 
+
+## Complex queries with subqueries
+
+The following query retrieves the vendor from each state that has the largest invoice total. It uses 3 subqueries as outlined in the comments.
+
+```sql
+SELECT t1.vendor_state, vendor_name, t1.sum_of_invoices
+FROM
+   (
+      -- 1. invoice totals by vendor
+      SELECT vendor_state, vendor_name,
+         SUM(invoice_total) AS sum_of_invoices
+      FROM vendors v JOIN invoices i
+         ON v.vendor_id = i.vendor_id
+      GROUP BY vendor_state, vendor_name
+   ) t1
+   JOIN
+      (
+         -- 2. top invoice totals by state
+         SELECT vendor_state,
+            MAX(sum_of_invoices) AS sum_of_invoices
+         FROM
+         (
+            -- 3. invoice totals by vendor
+            SELECT vendor_state, vendor_name,
+               SUM(invoice_total) AS sum_of_invoices
+            FROM vendors v JOIN invoices i
+               ON v.vendor_id = i.vendor_id
+            GROUP BY vendor_state, vendor_name
+         ) t2
+         GROUP BY vendor_state
+      ) t3
+   ON t1.vendor_state = t3.vendor_state AND
+      t1.sum_of_invoices = t3.sum_of_invoices
+ORDER BY vendor_state;
+```
+### Procedure for building complex queries
+1. State the problem that you want to solve in plain English.
+  - Which vendor in each state has the largest invoice total?
+2. Use pseudocode to outline the query.
+```sql
+SELECT vendor_state, vendor_name, sum_of_invoices
+FROM (subquery returning vendor_state, vendor_name, sum_of_invoices)
+JOIN (subquery returning vendor_state, largest_sum_of_invoices)
+   ON vendor_state AND sum_of_invoices
+ORDER BY vendor_state;
+```
+3. Code the subqueries and test them to be sure that they return the correct data.
+  - Code the first subquery:
+```sql
+SELECT vendor_state, vendor_name, SUM(invoice_total) AS sum_of_invoices
+FROM vendors v JOIN invoices i
+   ON v.vendor_id = i.vendor_id
+GROUP BY vendor_state, vendor_name
+```
+  - Code the second subquery:
+```sql
+SELECT vendor_state, MAX(sum_of_invoices) AS sum_of_invoices
+FROM
+(
+   SELECT vendor_state, vendor_name,
+      SUM(invoice_total) AS sum_of_invoices
+   FROM vendors v JOIN invoices i
+      ON v.vendor_id = i.vendor_id
+   GROUP BY vendor_state, vendor_name
+) t
+GROUP By vendor_state
+```
+4. Code and test the final query.
+
+## Common table expressions (CTE)
+A CTE is a **SELECT** statement that creates one or more named temporary result sets that can be used by the query that follows. Use CTEs to simplify complex queries that use subqueries.  
+ - CTEs begin with the **WITH** keyword, followed bgy the definition of the CTE. Then, you code the statement that uses it.  
+ - When you use multiple CTEs, separate them with columns.  
+ - You can use them with **SELECT**, **INSERT**, **UPDATE**, and **DELETE** clauses, but they are most often used with **SELECT**.
+
+```sql
+WITH summary as
+(
+   SELECT vendor_state, vendor_name, SUM(invoice_total) AS sum_of_invoices
+   FROM vendors v JOIN invoices i 
+      ON v.vendor_id = i.vendor_id
+   GROUP BY vendor_state, vendor_name
+),
+top_in_state AS 
+(
+   SELECT vendor_state, MAX(sum_of_invoices) AS sum_of_invoices
+   FROM summary
+   GROUP BY vendor_state
+)
+SELECT summary.vendor_state, summary.vendor_name,
+      top_in_state.sum_of_invoices
+FROM summary JOIN top_in_state
+   ON summary.vendor_state = top_in_state.vendor_state AND
+      summary.sum_of_invoices = top_in_state.sum_of_invoices
+ORDER BY summary.vendor_state;
+```
+
+## Recursive CTEs
+A _recursive query_ is a query that is able to loop through a result set and perform processing to return a final result set.
+- Commonly used to return hierarchical data such as an organiational chart in which a parent element may have one or more child elements, and each child element may have one or more child elements.
+
+```sql
+WITH RECURSIVE employees_cte AS
+(
+         -- Nonrecursive query
+         SELECT employee_id,
+            CONCAT(first_name, ' ', last_name) AS employee_name,
+            1 AS ranking
+         FROM employees
+         WHERE manager_id is NULL
+      UNION ALL
+         -- Recursive query
+         SELECT employees.employee_id,
+            CONCAT(first_name, ' ', last_name),
+            ranking + 1
+         FROM employees
+            JOIN employees_cte
+            ON employees.manager_id = employees_cte.employee.id
+)
+SELECT *
+FROMM employees_cte
+ORDER BY ranking, employee_id;
+```
