@@ -28,8 +28,8 @@ Rows and columns are sometimes called records and fields, respectively
     <dt>Referential integrity</dt>
     <dd>Makes sure that any changes to the data in the db do not create invalid relationships between tables.</dd>
     <dt>Data type</dt>
-    <dd><p>Determines the type of information that is stored in the column</p>
-    <p>Try to assign the data type that minimizes the use of disk storage because that improves the performance of queries later.</p>
+    <dd>Determines the type of information that is stored in the column<br>
+    Try to assign the data type that minimizes the use of disk storage because that improves the performance of queries later.
     <ul>
     <li>CHAR, VARCHAR</li>
     <li>INT, DECIMAL</li>
@@ -70,8 +70,8 @@ Rows and columns are sometimes called records and fields, respectively
     </ul>
     </dd>
     <dt>Database object</dt>
-    <dd><p>Any defined object in a db that is used to store or reference data.</p>
-    <p>Anything that is created from a CREATE command is a db object, including:</p>
+    <dd>Any defined object in a db that is used to store or reference data.<br>
+    Anything that is created from a CREATE command is a db object, including:
     <ul>
     <li>Table</li>
     <li>View</li>
