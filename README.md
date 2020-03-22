@@ -95,9 +95,9 @@ Best practice to build queries one clause at a time.
 <dt>SELECT</dt>
 <dd>Names the columns to be retrieved</dd>
 <dt>INSERT INTO</dt>
-<dd>Names the columns whose values are supplied in the **VALUES** clause</dd>
+<dd>Names the columns whose values are supplied in the <strong>VALUES</strong> clause</dd>
 <dt>VALUES</dt>
-<dd>Lists the data that is inserted with an **INSERT** clause</dd>
+<dd>Lists the data that is inserted with an <strong>INSERT</strong> clause</dd>
 <dt>UPDATE</dt>
 <dd>Changes the data in one or more rows of a table</dd>
 <dt>DELETE</dt>
@@ -107,9 +107,9 @@ Best practice to build queries one clause at a time.
 <dt>AS</dt>
 <dd>Assigns a new name to a group of columns. The new name is the column alias.<br>Called a calculated value because it exists only in this query<br>When there is a space in the alias name, enclose the alias name in quotes. For example, 'Test Row'</dd>
 <dt>WHERE</dt>
-<dd>Filters the rows in the base table by the boolean expression that takes a true, false, or NULL value. For example, **WHERE** value > 0.<br>If you omit the **WHERE** clause, all the rows in the base table are returned.</dd>
+<dd>Filters the rows in the base table by the boolean expression that takes a true, false, or NULL value. For example, <strong>WHERE</strong> value > 0.<br>If you omit the <strong>WHERE</strong> clause, all the rows in the base table are returned.</dd>
 <dt>IN</dt>
-<dd>Used in **WHERE** clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically.</dd>
+<dd>Used in <strong>WHERE</strong> clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically.</dd>
 
 **Example**:
 ```sql
@@ -144,7 +144,7 @@ WHERE  vendor_zip_code NOT BETWEEN 93600 AND 93799;
 | [char1 - char2]| Matches any single character within the given range | **WHERE** vendor_city REGEXP 'N[A-J]' | Returns NC, NV but not NJ or NY |
 | \|\ | Separates two string patterns and matches either one | **WHERE** vendor_city REGEXP 'RS|SN' | Returns Trave(rs)e City, Fre(sn)o
 
-**Example**
+**Example**  
 **WHERE** vendor_city REGEXP '[A-Z][AEIOU]N$' - returns any vendor_city that ends with any letter, then a vowel, then the letter 'n'
 
 
@@ -996,3 +996,168 @@ ORDER BY invoice_date;
 1. You cannot include a column name from the vendors table because it is not in the **FROM** clause, it is in the subquery.
 
 ## Subqueries in the WHERE clause
+Use the **IN** ooerator to test whetehr an expression is contained in a list of values. You can provide that list of values in  a subquery.  
+
+When you use the **IN** operator with a subquery, the subquery must return a single column that provides the list of values. Statements that use the **IN** operator with a subquery can usually be restated as an **OUTER JOIN**.
+
+```sql
+SELECT vendor_id, vendor_name, vendor_state
+FROM vendors
+WHERE vendor_id NOT IN              (2)
+   (SELECT DISTINCT vendor_id       (1)
+   FROM invoices)
+ORDER BY vendor_id;
+```
+1. Returns a list of each vendor that is in the invoices table.
+2. Returns data about the vendors whose IDs are not in that list.
+
+## Comparison operators and subqueries
+When you use a comparison operator to return a single value, you need to use an aggregate function.
+```sql
+SELECT invoice_number, invoice_date,
+   invoice_total - payment_total - credit_total AS balance_due
+FROM invoices
+WHERE invoice_total - payment_total - credit_total > 0
+  AND invoice_total - payment_total - credit_total < 
+      (
+         SELECT AVG(invoice_total - payment_total - credit_total)
+         FROM invoices
+         WHERE invoice_total - payment_total - credit_total > 0
+      )
+ORDER BY invoice_total DESC;
+```
+
+## ALL keyword
+Returns a boolean. Used to modify the comparison operator so that the condition must be true for all the values retuned by a subquery. If no rows are returned by the subqeuery, a comparison that uses the **ALL** keyword is always true.
+
+| Condition      | Equivalent expression | Description       |
+|:---------------|:----------------------|:------------------|
+|x > ALL (1, 2)  | x > 2                 | Evaluates to true if x is greater than the maximum value returned by the subquery.|
+|x < ALL (1, 2)  | X < 1                 | Evaluates to true if x is less than the minimum value returned by the subquery.|
+| x = ALL (1, 2) | (x = 1) AND (x = 2)   | Evaluates to true if the subquery returns a single value that is equal to x of if the subquery returns multiple values that are the same and these values are all equal to x |
+| x <> ALL (1, 2) | x NOT IN (1, 2)      | Evaluates to true if x is not one of the values returned by a subquery |
+
+**Example**
+Return invoices larger than the largest invoice or vendor 34
+```sql
+SELECT vendor_name, invoice_number, invoice_total
+FROM invoices i JOIN vendors v ON i.vendor_id = v. vendor_id
+WHERE invoice_total > ALL       (2)
+   (SELECT invoice_total        (1)
+    FROM invoices
+    WHERE vendor_id = 34)
+ORDER BY vendor_name;
+```
+1. Returns the invoice_total column from vendor 34
+2. Where the invoice_total is greater than any value returned in the subquery.
+
+## ANY and SOME keywords
+Used to test whether a comparison is true for any of the values returned by a subquery. These keywords are interchangeable. 
+
+**Example**
+```sql
+SELECT vendor_name, invoice_number, invoice_total
+FROM invoices i JOIN vendors v ON i.vendor_id = v. vendor_id
+WHERE invoice_total < ANY       (2)
+   (SELECT invoice_total        (1)
+    FROM invoices
+    WHERE vendor_id = 115)
+```
+1. Returns the invoice_total column from vendor 115
+2. Where the invoice_total value is less than any of the columns returned in the **ANY** subquery.
+
+This subquery could and should be rewritten using the **MAX** function:
+```sql
+WHERE invoice_total <        
+   (SELECT MAX(invoice_total)
+    FROM invoices
+    WHERE vendor_id = 115)
+```
+
+## Correlated subqueries
+
+**Uncorrelated** subquery is executed once for the entire query.  
+**Correlated** subquery is executed once for each row that's processed by the main query. This is similar to looping over a series of values.
+
+**Example**
+Retrieves rows from the invoices table for those invoices that have an invoice total that's greater than the average of all the invoices for the same vendor.  
+Goes through each vendor_id on the invoice table and calcs the average invoice total where the vendor_id is equal to the vendor_id that is currently being evaluated in the original clause.
+
+```sql
+SELECT vendor_id, invoice_number, invoice_total
+FROM invoices i
+WHERE invoice_total > 
+   (SELECT AVG(invoice_total)           (2)
+    FROM invoices
+    WHERE vendor_id = i.vendor_id)      (1) 
+ORDER BY vendor_id, invoice_total;
+```
+1. Refers to the vendor_id value of the main query.
+2. Returns the average of the invoice_total column from the invoice table where the vendor_id is equal to the vendor_id for the column it is querying.  
+It does this for each row in the column and compares 
+# FIGURE THIS OUT
+
+## EXISTS operator
+Tests whether the subquery returns a result set (if it exists or not). Typically used with a correlated subquery.
+
+```sql
+SELECT vendor_id, vendor_name, vendor_state
+FROM vendors
+WHERE NOT EXISTS                            (2)
+   (SELECT *                                (1)
+    FROM invoices
+    WHERE vendor_id = vendors.vendor_id)
+```
+1. Selects all invoices that have the same vendor_id as the current vendor in the outer query.
+2. Uses **NOT EXISTS** to test whether any invoices were found for the current vendor. If not, then the vendor row is included in the result set.
+
+## Subqueries in the HAVING clause
+Specify a search condition just like the **WHERE** clause.
+
+## Subqueries in the SELECT clause
+Replace a column specification with a subquery. The result of a query must return a single value for that column. In most cases, you use a correlated subquery in the **SELECT** clause.  
+You can usually restate each as a **JOIN**, so subqueries are not usually used in **SELECT** clause.
+
+```sql
+SELECT vendor_name,
+   (SELECT MAX(invoice_date) FROM invoices              (1)
+    WHERE vendor_id = vendors.vendor_id) AS latest_inv
+FROM vendors
+ORDER BY latest_inv DESC;
+```
+1. Calculates the maximum invoice date for each vendor in the vendors table by referring to the vendor_id from the vendors table in the **FROM** clause of the main query.  
+Goes through each vendor_id in the invoices table and calculates the max date for each vendor_id in the vendors table.
+
+**Restated as a JOIN**
+```sql
+SELECT vendor_name, MAX(invoice_date) AS latest_inv
+FROM vendors v
+   LEFT JOIN invoices i ON v.vendor_id = i.vendor_id
+GROUP BY vendor_name
+ORDER BY latest_inv DESC;
+```
+
+## Subqueries in the FROM clause
+Code a subquery in place of a table specification. The result is sometimes referred to as an _inline view_.  
+When you code a subquery in the **FROM** clause, you must assign an alias.  
+In the subquery, you should use an alias for any columns in the subquery that perform calculations. The main query can refer to the columns by these names.
+
+**Example**
+
+Returns the largest invoice total for the top vendor in each state.
+
+```sql
+SELECT vendor_state, MAX(sum_of_invoices) AS max_sum_of_invoices    (2)
+FROM 
+(
+   SELECT vendor_state, vendor_name,            (1)
+      SUM(invoice_total) AS sum_of_invoices     (2)
+   FROM vendors v JOIN invoices i
+         ON v.vendor_id = i.vendor_id
+   GROUP BY vendor_state, vendor_name
+) t
+GROUP BY vendor_state
+ORDER BY vendor_state;
+```
+1. The subquery returns the sum of the invoice_total 
+2. Alias in the subquery is used in the main query.
