@@ -7,27 +7,27 @@ Rows and columns are sometimes called records and fields, respectively
 ## Definitions
 
 <dl>
-    <dt><strong>Column</strong></dt>
+    <dt>Column</dt>
     <dd>Represents some sort of entity, like the amount of an invoice</dd>
-    <dt><strong>Row</strong></dt>
+    <dt>Row</dt>
     <dd>Contains a set of values for a single instance of the entity </dd>
-    <dt><strong>Cell</strong></dt>
+    <dt>Cell</dt>
     <dd>Intersection of the rows and columns</dd>
-    <dt><strong>Primary key</strong></dt>
+    <dt>Primary key</dt>
     <dd>Uniqueily identifies each row in the table. Usually a single column, but can be more than 1 column</dd>
-    <dt><strong>Composite primary key</strong></dt>
+    <dt>Composite primary key</dt>
     <dd>When a primary key uses two or more columns</dd>
-    <dt><strong>Unique key</strong></dt>
+    <dt>Unique key</dt>
     <dd>MySQL specific, not all dbs let you define one.</dd>
-    <dt><strong>Non-primary key</strong></dt>
+    <dt>Non-primary key</dt>
     <dd>Uniquely identifies each row in the table.</dd>
-    <dt><strong>Index</strong></dt>
+    <dt>Index</dt>
     <dd>Provides an efficient way to access data from a table based on the values in specific columns.<br>Created automatically for a tables primary and non-primary keys</dd>
-    <dt><strong>Foreign key</strong></dt>
+    <dt>Foreign key</dt>
     <dd>One or more columns in a table that refer to a primary key in another table (one-to-many relationship)</dd>
-    <dt><strong>Referential integrity</strong></dt>
+    <dt>Referential integrity</dt>
     <dd>Makes sure that any changes to the data in the db do not create invalid relationships between tables.</dd>
-    <dt><strong>Data type</strong></dt>
+    <dt>Data type</dt>
     <dd><p>Determines the type of information that is stored in the column</p>
     <p>Try to assign the data type that minimizes the use of disk storage because that improves the performance of queries later.</p>
     <ul>
@@ -37,17 +37,17 @@ Rows and columns are sometimes called records and fields, respectively
     <li>DATE</li>
     </ul>
     </dd>
-    <dt><strong>Null</strong></dt>
+    <dt>Null</dt>
     <dd>Value that is unknown, unavailable, or not applicable.</dd>
-    <dt><strong>Default value</strong></dt>
+    <dt>Default value</dt>
     <dd>Value that is assigned to the column if another value is not provided</dd>
-    <dt><strong>Auto increment column</strong></dt>
+    <dt>Auto increment column</dt>
     <dd>Value is generated automatically by the DBMS</dd>
-    <dt><strong>Entity-relationship (ER) or enhanced entity-relationship (EER) diagram</strong></dt>
+    <dt>Entity-relationship (ER) or enhanced entity-relationship (EER) diagram</dt>
     <dd>Used to show how the tables in a database are defined and related</dd>
-    <dt><strong>Result set/table</strong></dt>
+    <dt>Result set/table</dt>
     <dd>the data that is returned by a query</dd>
-    <dt><strong>DML (Data Manipulation Language)</strong></dt>
+    <dt>DML (Data Manipulation Language)</dt>
     <dd><p>Statements tha work with the data in a db</p>
     <ul>
     <li>SELECT - gets data from one or more tables</li>
@@ -56,7 +56,7 @@ Rows and columns are sometimes called records and fields, respectively
     <li>DELETE - deletes existing rows from a table</li>
     </ul>
     </dd>
-    <dt><strong>DDL (Data Definition Language)</strong></dt>
+    <dt>DDL (Data Definition Language)</dt>
     <dd><p>Statements that create databases and work with the objects within a db (usually used by db admins)</p>
     <ul>
     <li>CREATE DATABASE - creates a new db on the server</li>
@@ -69,7 +69,7 @@ Rows and columns are sometimes called records and fields, respectively
     <li>DROP INDEX - deletes an existing index</li>    
     </ul>
     </dd>
-    <dt><strong>Database object</strong></dt>
+    <dt>Database object</dt>
     <dd><p>Any defined object in a db that is used to store or reference data.</p>
     <p>Anything that is created from a CREATE command is a db object, including:</p>
     <ul>
@@ -80,62 +80,12 @@ Rows and columns are sometimes called records and fields, respectively
     <li>Synonym</li>
     </ul>
     </dd>
-    <dt><strong>Scalar function</strong></dt>
+    <dt>Scalar function</dt>
     <dd>A query that operates on a single value and returns a single value</dd>
-    <dt><strong>Aggregate function</strong></dt>
+    <dt>Aggregate function</dt>
     <dd>a query that operates on a series of values and returns a single summary value. Sometimes called <em>column</em> functions because they typically operate on the values in columns.</dd>
-    <dt><strong>Summary query</strong></dt>
+    <dt>Summary query</dt>
     <dd>A query that contains one or more aggregate functions.</dd>    
-
-
-**Column** - represents some sort of entity, like the amount of an invoice  
-**Row** - contains a set of values for a single instance of the entity  
-**Cell** - interection of the rows and columns   
-**Primary key** - uniqueily identifies each row in the table. Usually a single column, but can be more than 1 column   
-**Composite primary key** - when a primary key uses two or more columns  
-**Unique key** - MySQL specific, not all dbs let you define one  
-Non-primary key. Uniquely identifies each row in the table  
-**Index** - provides an efficient way to access data from a table based on the values in specific columns  
-Created automatically for a tables primary and non-primary keys  
-**Foreign key** - one or more columns in a table that refer to a primary key in another table (one-to-many relationship)  
-**Referential integrity** - makes sure that any changes to the data in the db do not create invalid relationships between tables.  
-**Data type** - determines the type of information that is stored in the column  
-Try to assign the data type that minimizes the use of disk storage because that improves the performance of queries later  
-- CHAR, VARCHAR 
-- INT, DECIMAL
-- FLOAT  
-- DATE
-**Null** - value that is unknown, unavailable, or not applicable  
-**Default value** - value that is assigned to the column if another value is not provided  
-**Auto increment column** - value is generated automatically by the DBMS  
-**Entity-relationship (ER)** or **enhanced entity-relationship (EER)** diagram - used to show how the tables in a database are defined and related  
-**Result set/table** - the data that is returned by a query  
-**DML** - data manipulation language - statements tha work with the data in a db 
-  **SELECT** - gets data from one or more tables 
-  **INSERT** - adds new rows to a table 
-  **UPDATE** - changes existing rows in a table 
-  **DELETE** - deletes existing rows from a table 
-**DDL** - data definition language - statements that create databases and work with the objects within a db (usually used by db admins)
-  **CREATE DATABASE** - creates a new db on the server 
-  **CREATE TABLE** - creates a new table in a db 
-  **CREATE INDEX** - creates a new index for a table 
-  **ALTER TABLE** - changes the definition of an existing table 
-  **ALTER INDEX** - changes the structure of an existing index 
-  **DROP DATABASE** - deletes an existing db and all of its tables 
-  **DROP TABLE** - deletes an existing table 
-  **DROP INDEX** - deletes an existing index 
-
-**Database object** - any defined object in a db that is used to store or reference data. 
-Anything that is created from a CREATE command is a db object, including: 
-- Table 
-- View
-- Sequence
-- Index 
-- Synonym
-
-**scalar function** - a query that operates on a single value and returns a single value
-**aggregate function** - a query that operates on a series of values and returns a single summary value. Sometimes called _column functions_ because they typically operate on the values in columns. 
-**summary query** - a query that contains one or more aggregate functions.
 
 ## Building queries 
     Best practice to build queries one clause at a time.
