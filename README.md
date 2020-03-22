@@ -7,26 +7,12 @@ Rows and columns are sometimes called records and fields, respectively
 ## Definitions
 
 <dl>
-    <dt>Column</dt>
-    <dd>Represents some sort of entity, like the amount of an invoice</dd>
-    <dt>Row</dt>
-    <dd>Contains a set of values for a single instance of the entity </dd>
     <dt>Cell</dt>
     <dd>Intersection of the rows and columns</dd>
-    <dt>Primary key</dt>
-    <dd>Uniqueily identifies each row in the table. Usually a single column, but can be more than 1 column</dd>
+    <dt>Column</dt>
+    <dd>Represents some sort of entity, like the amount of an invoice</dd>
     <dt>Composite primary key</dt>
     <dd>When a primary key uses two or more columns</dd>
-    <dt>Unique key</dt>
-    <dd>MySQL specific, not all dbs let you define one.</dd>
-    <dt>Non-primary key</dt>
-    <dd>Uniquely identifies each row in the table.</dd>
-    <dt>Index</dt>
-    <dd>Provides an efficient way to access data from a table based on the values in specific columns.<br>Created automatically for a tables primary and non-primary keys</dd>
-    <dt>Foreign key</dt>
-    <dd>One or more columns in a table that refer to a primary key in another table (one-to-many relationship)</dd>
-    <dt>Referential integrity</dt>
-    <dd>Makes sure that any changes to the data in the db do not create invalid relationships between tables.</dd>
     <dt>Data type</dt>
     <dd>Determines the type of information that is stored in the column<br>
     Try to assign the data type that minimizes the use of disk storage because that improves the performance of queries later.
@@ -37,6 +23,20 @@ Rows and columns are sometimes called records and fields, respectively
     <li>DATE</li>
     </ul>
     </dd>
+    <dt>Foreign key</dt>
+    <dd>One or more columns in a table that refer to a primary key in another table (one-to-many relationship)</dd>
+    <dt>Index</dt>
+    <dd>Provides an efficient way to access data from a table based on the values in specific columns.<br>Created automatically for a tables primary and non-primary keys</dd>
+    <dt>Non-primary key</dt>
+    <dd>Uniquely identifies each row in the table.</dd>
+    <dt>Primary key</dt>
+    <dd>Uniqueily identifies each row in the table. Usually a single column, but can be more than 1 column</dd>
+    <dt>Referential integrity</dt>
+    <dd>Makes sure that any changes to the data in the db do not create invalid relationships between tables.</dd>
+    <dt>Row</dt>
+    <dd>Contains a set of values for a single instance of the entity </dd>
+    <dt>Unique key</dt>
+    <dd>MySQL specific, not all dbs let you define one.</dd>
     <dt>Null</dt>
     <dd>Value that is unknown, unavailable, or not applicable.</dd>
     <dt>Default value</dt>
@@ -88,23 +88,30 @@ Rows and columns are sometimes called records and fields, respectively
     <dd>A query that contains one or more aggregate functions.</dd>    
 
 ## Building queries 
-    Best practice to build queries one clause at a time.
+Best practice to build queries one clause at a time.
 
 # Statements 
-**SELECT** - clause that names the columns to be retrieved
-**INSERT INTO** - clause that names the columns whose values are supplied in the **VALUES** clause 
-**VALUES** - clause that lists the data that is inserted with an **INSERT** clause
-**UPDATE** - clause that changes the data in one or more rows of a table
-**DELETE** - clause that deletes one or more rows from a table 
-**FROM** - clause that names the base table from which the query retrieves the data 
-**AS** - clause that assigns a new name to a group of columns. The new name is the column alias 
-Called a calculated value because it exists only in this query 
-When there is a space in the alias name, enclose the alias name in quotes. For example, 'Test Row'
-**WHERE** - clause that filters the rows in the base table by the boolean expression that takes a true, false, or NULL value. For example, **WHERE** value > 0
-If you omit the **WHERE** clause, all the rows in the base table are returned 
 
-**IN** - used in **WHERE** clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically. 
-> Example:  
+<dt>SELECT</dt>
+<dd>Names the columns to be retrieved</dd>
+<dt>INSERT INTO</dt>
+<dd>Names the columns whose values are supplied in the **VALUES** clause</dd>
+<dt>VALUES</dt>
+<dd>Lists the data that is inserted with an **INSERT** clause</dd>
+<dt>UPDATE</dt>
+<dd>Changes the data in one or more rows of a table</dd>
+<dt>DELETE</dt>
+<dd>Deletes one or more rows from a table</dd>
+<dt>FROM</dt>
+<dd>Names the base table from which the query retrieves the data</dd>
+<dt>AS</dt>
+<dd>Assigns a new name to a group of columns. The new name is the column alias.<br>Called a calculated value because it exists only in this query<br>When there is a space in the alias name, enclose the alias name in quotes. For example, 'Test Row'</dd>
+<dt>WHERE</dt>
+<dd>Filters the rows in the base table by the boolean expression that takes a true, false, or NULL value. For example, **WHERE** value > 0.<br>If you omit the **WHERE** clause, all the rows in the base table are returned.</dd>
+<dt>IN</dt>
+<dd>Used in **WHERE** clause. Compares the value of the test expression with the list of expressions in the IN phrase. If the test expression is equal to one of the expressions in the list, the row is included in the query results and each of the expressions in the list is converted to the same thpe of data as the test expression automatically.</dd>
+
+**Example**:
 ```sql
 WHERE terms_id IN (1, 2, 3);
 ```
@@ -119,26 +126,51 @@ WHERE invoice BETWEEN '2018-06-01' AND '2018-06-30';
 ```sql
 WHERE  vendor_zip_code NOT BETWEEN 93600 AND 93799;
 ```
-**LIKE** or **REGEXP** - used in the **WHERE** clause. Use to retrieve rows that match a specific string pattern or mask. 
-            **LIKE** Wildcards: 
-                % - matches any string of zero or more characters 
-                    **WHERE** vendor_city LIKE 'SAN%'; returns San Diego, Santa Ana
-                _ - matches any single character 
-                    **WHERE** vendor_name LIKE 'COMPU_ER'; returns Compuserve, Computerworld
-            REGEXP special characters/constructs:
-                ^ - matches the pattern to the beginning of the value being tested 
-                    **WHERE** vendor_city REGEXP '^SA'; returns Pasadena, Santa Ana
-                $ - matches the pattern to the end of the value being tested
-                    **WHERE** vendor_city REGEXP 'NA$'; returns Gardena, Pasadena 
-                . - matches any single character 
-                [charlist] - mathces any single character listed within the brackets
-                    **WHERE** vendor_city REGEXP 'N[CV]'; returns NC, NV but not NJ or NY 
-                [char1 - char2] - matches any single character within the given range 
-                    **WHERE** vendor_city REGEXP 'N[A-J]'; returns NC, NV but not NJ or NY 
-                | - separates two string patterns and matches either one
-                    **WHERE** vendor_city REGEXP 'RS|SN'; returns Trave(rs)e City, Fre(sn)o
+<dt>LIKE or REGEXP</dt>
+<dd>Used in the **WHERE** clause. Use to retrieve rows that match a specific string pattern or mask.</dd>
 
-                    **WHERE** vendor_city REGEXP '[A-Z][AEIOU]N$'; returns any vendor_city that ends with any letter, then a vowel, then the letter 'n'
+**LIKE Wildcards**:
+| Character | Definition | Example | Returns |
+|:----------|:-----------|:--------|:--------|
+| %         | Matches any string of zero or more characters | **WHERE** vendor_city LIKE 'SAN%' | returns San Diego, Santa Ana |
+| _         | Matches any single character | **WHERE** vendor_name LIKE 'COMPU_ER' | Returns Compuserve, Computerworld |
+
+**REGEXP special characters/constructs**
+| Character | Definition | Example | Returns |
+|:----------|:-----------|:--------|:--------|
+| ^         | Matches the pattern to the beginning of the value being tested | **WHERE** vendor_city REGEXP '^SA' | returns Pasadena, Santa Ana |
+| $         | Matches the pattern to the end of the value being tested | **WHERE** vendor_city REGEXP 'NA$' | Returns Gardena, Pasadena | .         | Matches any single character |
+| [charlist]| Matches any single character listed within the brackets | **WHERE** vendor_city REGEXP 'N[CV]' | Returns NC, NV but not NJ or NY |
+| [char1 - char2]| Matches any single character within the given range | **WHERE** vendor_city REGEXP 'N[A-J]' | Returns NC, NV but not NJ or NY |
+| \|\ | Separates two string patterns and matches either one | **WHERE** vendor_city REGEXP 'RS|SN' | Returns Trave(rs)e City, Fre(sn)o
+
+**Example**
+**WHERE** vendor_city REGEXP '[A-Z][AEIOU]N$' - returns any vendor_city that ends with any letter, then a vowel, then the letter 'n'
+
+
+
+
+
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+<dt></dt>
+<dd></dd>
+ 
+
+**** or **** -  
+ 
+    
+    
+:
+
         IS NULL - used in **WHERE** clause. Can use IS NOT NULL too.
             Example:
                 **SELECT** * FROM null_sample 
@@ -906,3 +938,61 @@ WINDOW vendor_window AS (PARTITION BY vendor_id);           (1)
 ```
 1. Paritions the rows in the result set by the vendor_id column.
 2. Applies the partition defined in the **WINDOW** clause to each **OVER** clause
+
+# Subqueries
+A **SELECT** statement that is coded within another SQL statement. It is used to create queries that work with two or more tables. A subquery cannot include an **ORDER BY** clause.
+
+## 4 ways to introduce a subquery in a SELECT statement
+1. In a **WHERE** clause as a search condition
+2. In a **HAVING** clause as a search condition
+3. In the **FROM** clause as a table specification.
+4. In the **SELECT** clause as a column specification.
+
+**Example**
+
+The following statement returns all the invoices from the invoices table that have invoice totals greater than the average of all the invoices.
+
+```sql
+SELECT invoice_number, invoice_date, invoice_total
+FROM invoices
+WHERE invoice_total >               (2)
+   (SELECT AVG(invoice_total)       (1)
+   FROM invoices)
+ORDER BY invoice_total;
+```
+1. The suqeiry calculates the average of all the invoices
+2. The search condition testes each invoice to see if its invoice total is greater than that average.
+
+## When to use subqueries (vs JOINS)
+
+Most subqueries can be restated as JOINS, and vice versa. When you use a subquery in a **WHERE** clause, its results cannot ve included in the final set because it is not included in the **FROM** clause.
+
+**JOIN**
+- THE **SELECT** clause of a join can include columns from both tables.
+- A JOIN is generally more intuitive when it uses an existin relationship between the two tables, such as a primary key to foreign key relationship.
+
+```sql
+SELECT invoice_number, invoice_date, invoice_total
+FROM invoices JOIN vendors 
+   ON invoices.vendor_id = vendors.vendor_id
+WHERE vendor_state = 'CA'
+ORDER BY invoice_date;
+```
+
+**Subquery**
+- You can use a subquey to pass an aggregate value to the main query.
+- A subquery tends to be more intuitive when it uses an ad hoc relationship between the two tables.
+- Long, complex queries can sometimes be easier to code using subqueries.
+
+```sql
+SELECT invoice_number, invoice_datte, invoice_total
+FROM invoices 
+WHERE vendor_id IN
+   (SELECT vendor_id                (1)
+   FROM vendors
+   WHERE vendor_state = 'CA')
+ORDER BY invoice_date;
+```
+1. You cannot include a column name from the vendors table because it is not in the **FROM** clause, it is in the subquery.
+
+## Subqueries in the WHERE clause
