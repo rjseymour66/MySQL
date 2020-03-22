@@ -1286,3 +1286,155 @@ SELECT *
 FROMM employees_cte
 ORDER BY ranking, employee_id;
 ```
+
+# Data types
+A **data type** specifies the kind of information the column is inteded to store. This determines the operations that can be performed on the column.
+
+## Data type table
+
+| Category      | Description    |
+|:--------------|:---------------|
+| Character     | Strings of character data |
+| Numeric       | Numbers that don't include a decimal point (integers) and numbers that include a decimal point (real numbers) |
+| Date and time | Dates, times, or both |
+| Large Object (LOB) | Large string of character or binary data |
+| Spatial       | Geographical values |
+| JSON          | JSON documents |
+
+## Character types
+
+The two most common character data types are **CHAR** and **VARCHAR**.
+
+| Type      | Bytes         | Description   |
+|:----------|:--------------|:--------------|
+| CHAR (M)  | Mx4           | Fixed-length strings of character data where M is the number of characters, between 0 and 255. With the utf8mb4 character set, MySQL must reserve four bytes for each character in a CHAR column becuase that's the maximum possible length. |
+| VARCHAR (M) | L+1     | Variable-length strings of character data where M is the maximum number of characters, between 0 and 255. For English and Latin characters, the number of bytes used to store the string is equal to length of the string (L) pluse 1 byte to record its length |
+
+## How the character types work with utf8mb4
+
+utf8mb4 character set uses up to 4 bytes to store each character, so its called a multiple-byte character set. When it is used with CHAR, it uses 4 bytes per character. With VARCHAR, it uses 1 byte per character and 1 byte to store its location.
+
+| Data type     | Original value    | Value stored      | Bytes used    |
+|:--------------|:------------------|:------------------|:--------------|
+| CHAR(2)       | 'CA'              | 'CA'              | 8             |
+| CHAR(10)      | 'CA'              | 'CA        '      | 40            |
+| VARCHAR(10)   | 'CA'              | 'CA'              | 3             |
+| VARCHAR(20)   | 'California'      | 'California'      | 11            |
+| VARCHAR(20)   | 'New York'        | 'New York'        | 9             |
+| VARCHAR(20)   | 'Ryan's MySQL'    | 'Ryan's MySQL'    | 13            |
+
+### CHAR 
+- Stores fixed-length strings.
+- Any data stored using this data type always occupies the same number of bytes regardless of the actual length of the string.
+- Typically used to define columns that have a fized number of characters, for example, a state column 
+- If two characters are stored in a column defined as CHAR(5), then 3 additional spaces are stored after the two characters becuase it is a fixed-length data type.
+
+### VARCHAR
+- Stores variable-length strings
+- Data stored with this type occupies only the number of bytes needed to store the string plus an extra byte to store the length of the string
+- Typically used to define columns whose lengths vary from one row to the next. 
+
+## Integer types
+
+These are positive or negative numbers that don't include a decimal point. The INT type is most commonly used because it can store a wide range of nunbers and only requires 4 bytes of storage.
+
+| Type      | Bytes      |
+|:----------|:----------:|
+| BIGINT    | 8          |
+| INT       | 4     |
+| MEDUIMINT | 3     |
+| SMALLINT  | 2     |
+|TINYINT    | 1     |
+
+**UNSIGNED** - attribute for an integer type to prevent negative values from being stored in the column.
+**ZEROFILL** - attribute that sets the **UNSIGNED** attribute automatically, and the integer is displayed with zeros padded from the left, up to the maximum display size. (max display size for INT is 10)
+**BOOLEAN** and **BOOL** - synonym for **TINYINT(1)**. 0 is FALSE, 1 is TRUE.
+
+## Fixed-point and floating-point types
+
+
+### Fixed-point type
+| Type      | Bytes     | Description |
+|:----------|:---------:|:-------|
+| DECIMAL(M, D) | Vary  |Fixed-precision numbers where M specifies the maximum number of total digits (the precision) and D specifies the number of digits to the right of the decima. (the scale). M can range from 1 to 65. D can range from 0 to 30 but can't be larger than M. The defalut is 0. |
+
+### Floating-point type
+| Type      | Bytes     | Description |
+|:----------|:---------:|:-------|
+| DOUBLE    | 8         | Double-precision floating-point numbers |
+| FLOAT     | 4         | Single-precision floating-point numbers |
+
+## Date and time types
+
+Typically use TIMESTAMP to track when a row was inserted or last updated.
+
+| Type      | Bytes     | Description |
+|:----------|:---------:|:-------|
+| DATE      | 3         | Dates from Jan 1, 1000 - Dec 31, 9999. The default format is 'yyyy-mm-dd' |
+| TIME      | 3         | Times in the range of -839:59:59 to 839:59:59. The default format is 'hh:mm:ss'. |
+| DATETIME  | 8         | Combination date and time from midnight Jan 1, 1970 - Dec 31, 9999. The default format is 'yyyy-mm0dd hh:mm:ss'. |
+| TIMESTAMP | 4         | Combination date and time from midnight Jan 1, 1970 - the year 2037. The default format is 'yyyy-mm0dd hh:mm:ss'. |
+| YEAR[(4)] | 1         | Years in 4-digit foramt. Allowable values are from 1901 - 2155 |
+
+- Year - entries with 1 and 2-digit entries are acceptable, but converted to 4-digit automatically.
+
+## ENUM and SET types
+
+Both types allow you to restrict the values for a column to a limited set of strings. 
+
+| Type      | Bytes     | Description |
+|:----------|:---------:|:-------|
+| ENUM      | 1-2       | Stores one value selected from a list of acceptable values. |
+| SET       | 1-8       | Stores zero or more values selected from a list of acceptable values | 
+
+- **ENUM** can store only one member in a set of values
+- **SET** can store 0, 1, or up to 64 different values
+
+## The large object types
+
+These are designed to store large amounts of binary or character data.  
+**BLOB** types (binary large object) store strings of binary data. This data is often used to stroe images, sounds, and video.  
+**TEST** types store strings of characters and are sometimes referred to as character large object (CLOB) types.
+
+## Data conversion 
+Automatic conversions are called **implicit conversions**.
+
+## CAST AND CONVERT functions
+
+Use the **CAST** and **CONVERT** functions to conver an expression to the data type that you specify.
+
+| Cast type     | Description       |
+|:--------------|:------------------|
+| CHAR[(N)]     | A string of characters where N is the maximum number of characters. |
+| DATE          | A DATE value  |
+| DATETIME      | A DATETIME value |
+| TIME          | A TIME value      |
+| SIGNED [INTEGER] | A signed IN value. The INTEGER keyword is optional |
+| UNSIGNED [INTEGER] | An unsigned IN value. The INTEGER keyword is optional |
+| DECIMAL[(M[,D])]  | A DECIMAL value where M specifies the precision and D specified the scale. |
+
+### CAST
+```sql
+SELECT invoice_id, invoice_date, invoice_total,
+   CAST(invoice_date AS CHAR(10)) AS char_date,
+   CAST(inoice_total AS SIGNED) AS integer_total
+FROM invoices;
+```
+### CONVERT
+```sql
+SELECT invoice_id, invoice_date, invoice_total,
+   CONVERT(invoice_date AS CHAR(10)) AS char_date,
+   CONVERT(inoice_total AS SIGNED) AS integer_total
+FROM invoices;
+```
+
+### FORMAT and CHAR functions
+
+**FORMAT** converts a number to a string of characters. This makes large numbers easier to read. Additionally, it rounds the last number.  
+
+**CHAR** returns a binary string for each specified integer. This is typically used to output ASCII control characters that cannot be typed on your keyboard.
+
+| Function                  | Description       |
+|:--------------------------|:------------------|
+| FORMAT(number, decimal)   | Converts the specified number to a character string with grouped digits separated by commas, rounded to the specified number of decimal digits. If decimal is zero, then the decimal point is omitted. |
+| CHAR(value1[,value2]...)  | Converts one or more numbers to a binary string. Each number is interpreted as an integer between 0 and 255. |
