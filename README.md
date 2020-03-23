@@ -1537,3 +1537,102 @@ WHERE ROUND(float_value, 2) = 1.00;
 |:--------------------------|:--------------|
 | NOW()<br>SYSDATE()<br>CURRENT_TIMESTAMP() | Returns the current local date and time bsaed on the system's clock. |
 | CURDATE()<br>CURRENT_DATE() | Returns the current local date. |
+| CURTIME()<br>CURRENT_TIME() | Returns the current local time. |
+| UTC_DATE()  | Returns the current date in Greenwich Mean Time (GMT) |
+| UTC_TIME()    | Returns the current time in Greenwich Mean Time (GMT) |
+
+### Date/time parsing functions
+
+|Function                   | Result        |
+|:--------------------------|:-------------:|
+| DAYOFMONTH('2018-12-03')  | 3     |
+| MONTH('2018-12-03')       | 12    |
+| YEAR('2018-12-03')        | 2018  |
+| HOUR('11:35:00')          | 11    |
+| MINUTE('11:35:00')        | 35    |
+| SECOND('11:35:00')        | 0     |
+| DAYOFWEEK('2018-12-03')   | 2     |
+| QUARTER('2018-12-03')     | 4     |
+| DAYOFYEAR('2018-12-03')   | 337   |
+| WEEK('2018-12-03')        | 48    |
+| LAST_DAY('2018-12-03')    | 31    |
+| | |
+| DAYNAME('2018-12-03')     | Monday    |
+| MONTHNAME('2018-12-03')   | December  |
+
+## EXTRACT function with date/time
+
+Use **EXTRACT** with any of the date/time units followed by the **FROM** keyword and a date/time value to extract the specified unit from the date/time value and retun an integer value that corresponds to that unit.
+
+|Function                   | Result        |
+|:--------------------------|:-------------:|
+| EXTRACT(SECOND FROM '2018-12-03 11:35:00') |   0  |
+| EXTRACT(MINUTE FROM '2018-12-03 11:35:00') |  35    |
+| EXTRACT(HOUR FROM '2018-12-03 11:35:00') |  11    |
+| EXTRACT(DAY FROM '2018-12-03 11:35:00') |   3   |
+| EXTRACT(MONTH FROM '2018-12-03 11:35:00') |  12    |
+| EXTRACT(YEAR FROM '2018-12-03 11:35:00') |   2018   |
+| EXTRACT(MINUTE_SECOND FROM '2018-12-03 11:35:00') |  3500    |
+| EXTRACT(HOUR_MINUTE FROM '2018-12-03 11:35:00') |  1135    |
+| EXTRACT(DAY_HOUR FROM '2018-12-03 11:35:00') |   311   |
+| EXTRACT(YEAR_MONTH FROM '2018-12-03 11:35:00') |  201812    |
+| EXTRACT(HOUR_SECOND FROM '2018-12-03 11:35:00') |   113500   |
+| EXTRACT(DAY_MINUTE FROM '2018-12-03 11:35:00') |  31135    |
+| EXTRACT(DAY_SECOND FROM '2018-12-03 11:35:00') |  3113500    |
+
+## Formatting dates and times
+
+### Common codes for date/time format strings
+
+|Function                   | Result        |
+|:----------|:--------------|
+| %m        | Month, numeric (01...12)   |
+| %c        | Month, numeric (1...12)   |
+| %M        | Month name (January...December)   |
+| %b        | Abbreviated month name (Jan...Dec)    |
+| %d        | Day of the month, numeric(00...31)    |
+| %e        | Day of the month, numeric(0...31) |
+| %D        | Day of the month with suffix(1st, 2nd, 3rd, etc)  |
+| %y        | Year, numeric, 2 digits |
+| %Y        | Year, numeric, 4 digits   |
+| %W        | Weekday name (Sunday...Saturday)  |
+| %a        | Abbreviated weekday name (Sun...Sat) |
+| %H        | Hour(00...23) |
+| %k        | Hour(0...23)  |
+| %h        | Hour(01...12) |
+| %l        | Hour(1...12)  |
+| %i        | Minutes (00...59) |
+| %r        | Time, 12-hour (hh:mm:ss AM or PM) |
+| %T        | Time, 24-hour (hh:mm:ss)  |
+| %S        | Seconds (00...59)     |
+| %p        | AM or PM  |
+
+### Examples
+|Function                   | Result        |
+|:--------------------------|:-------------:|
+| DATE_FORMAT('2018-12-03', '%m/%d/%y') |     12/03/2018  |
+| DATE_FORMAT('2018-12-03', '%W, %M, %D, %Y') |     Monday, December 3rd, 2018  |
+| DATE_FORMAT('2018-12-03', '%e-%b-%y') |     3-Dec-18  |
+| DATE_FORMAT('2018-12-03 16:45', '%r') |     04:45:00 PM  |
+| DATE_FORMAT('16:45', '%r') |     04:45:00 PM  |
+| DATE_FORMAT('16:45', '%l:%i %p') |     4:45 PM  |
+
+### Performing calculations with date/time
+
+|Function                   | Result        |
+|:--------------------------|:--------------|
+| DATE_ADD('2018-12-31', INTERVAL 1 DAY)    | 2019-01-01 |
+| DATE_ADD('2018-12-31', INTERVAL 3 MONTH)    | 2019-03-31 |
+| DATE_ADD('2018-12-31 23:59:59', INTERVAL 1 SECOND)    | 2019-01-01 00:00:00 |
+| DATE_ADD('2019-01-01', INTERVAL -1 DAY)    | 2018-12-31 |
+| DATE_SUB('2018-12-31', INTERVAL 1 DAY)    | 2018-12-31 |
+| DATE_ADD('2016-02-29', INTERVAL 1 YEAR)    | 2017-02-28 |
+| DATE_ADD('2018-02-29', INTERVAL 1 YEAR)    | NULL |
+| DATE_ADD('2018-12-31 12:00', INTERVAL '2 12' DAY_HOUR)    | 2019-01-03 00:00:00 |
+| | |
+| DATEDIFF('2018-12-30', '2018-12-03)    | 27 |
+| DATE_ADD('2018-12-31 23:59:59', '2018-12_03')    | 27 |
+| DATE_ADD('2018-12-03', '2018-12-30')    | -27 |
+|  |  |
+| TO_DAYS('2018-12-30') - TO_DAYS('2018-12-03)    | 27 |
+| TIME_TO_SEC('10:00') - TIME_TO_SEC('09:59')    | 60 |
