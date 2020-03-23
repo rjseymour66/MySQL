@@ -1513,3 +1513,27 @@ FROM string_sample
 | | |
 | RAND()                    | 0.2444132... |
 
+## Searching for floating-point numbers
+
+You don't/can't search for exact numbers because floats and decimals are approximate numbers.
+
+```sql
+SELECT * 
+FROM float_sample
+WHERE float_value BETWEEN 0.99 AND 1.01
+```
+
+Or, you can search for values that round to an exact value:
+
+```sql
+SELECT *
+FROM float_sample
+WHERE ROUND(float_value, 2) = 1.00;
+```
+
+## Working with date/time data
+
+|Function                   | Description   |
+|:--------------------------|:--------------|
+| NOW()<br>SYSDATE()<br>CURRENT_TIMESTAMP() | Returns the current local date and time bsaed on the system's clock. |
+| CURDATE()<br>CURRENT_DATE() | Returns the current local date. |
