@@ -1420,6 +1420,20 @@ SELECT invoice_id, invoice_date, invoice_total,
    CAST(inoice_total AS SIGNED) AS integer_total
 FROM invoices;
 ```
+
+### Explicitly cast string as an integer
+```sql
+SELECT *
+FROM string_example
+ORDER BY CAST(emp_id AS SIGNED);
+```
+
+### Implicity cast string as an integer
+```sql
+SELECT *
+FROM string_example
+ORDER BY emp_id + 0;
+
 ### CONVERT
 ```sql
 SELECT invoice_id, invoice_date, invoice_total,
@@ -1438,3 +1452,64 @@ FROM invoices;
 |:--------------------------|:------------------|
 | FORMAT(number, decimal)   | Converts the specified number to a character string with grouped digits separated by commas, rounded to the specified number of decimal digits. If decimal is zero, then the decimal point is omitted. |
 | CHAR(value1[,value2]...)  | Converts one or more numbers to a binary string. Each number is interpreted as an integer between 0 and 255. |
+
+# Functions
+This section contains common functions and their uses.
+
+## Parsing a string
+
+### Use SUBSTRING_INDEX to parse a string
+
+```sql
+SELECT emp_name
+   SUBSTRING_INDEX(emp_name, ' ', 1) AS first_name,      1)
+   SUBSTRING_INDEX(emp_name, ' ', -1) AS last_name     (   )
+FROM string_sample;
+```
+1. Returns all characters from the start of the string in the emp_name column up to the first space in that column.
+2. Returns all characters from the end of the string in the emp_name column up to the last space in that column.
+
+### Use LOCATE to find a character in a string
+```sql
+SELECT emp_name,
+   LOCATE(' ', emp_name) AS first_space,                                (1)
+   LOCATE(' ', emp_name, LOCATE(' ', emp_name) + 1) AS second_space     (2)
+FROM string_sample
+```
+1. Returns an integer value for the location of the first space.
+2. Returns the location of the second space. This uses a nested LOCATE to start the search at the character after the first space.
+
+### Use SUBSTRING to parse a string
+```sql
+SELECT emp_name,
+   SUBSTRING(emp_name, 1, LOCATE(' ', emp_name) -1) AS first_name       (1)
+   SUBSTRING(emp_name, LOCATE(' ', emp_name) +1) AS last_name           (2)
+FROM string_sample
+```
+1. Returns all characters from the beginning of the string to the first space. 
+2. Returns all characters after the efirst space to the end of the string.
+
+## Numeric data
+
+|Function                   | Result        |
+|:--------------------------|:-------------:|
+| ROUND(12.49, 0)           |  12   |
+| ROUND(12.50, 0)           | 13    |   
+| ROUND(12.49, 1)           | 12.5    | 
+| TRUNCATE(12.51, 0)        | 12    |
+| TRUNCATE(12.49, 1)        | 12.4  |
+| | |
+| CEILING(12.5)             | 13    |
+| CEILING(-12.5)            | -12   |
+| FLOOR(-12.5)              | -13   |
+| FLOOR(12.5)               | 12    |
+| ABS(-1.25)                | 1.25  |
+| ABS(1.25)                 | 1.25  |
+| SIGN(-1.25)               | -1    |
+| SIGN(1.25)                | 1     |
+| | |
+| SQRT(125.43)              | 11.1995535... |
+| POWER(9, 2)               | 81    |
+| | |
+| RAND()                    | 0.2444132... |
+
