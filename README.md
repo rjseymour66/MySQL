@@ -834,6 +834,8 @@ GROUP BY invoice_date, payment_date WITH ROLLUP;
 ## Window functions
 Similar to **GROUP BY**, except that the groups (or partitions), are not collapsed to a single row - all rows in the result set are returned. 
 
+Think of this as exposing a window of rows to a function.
+
 To start, you code an aggregate window function by including the **OVER** clause. This clause defines the window that's used by the aggregate function.
 **OVER()** - uses a single parition. All the rows for that column will be the same value
 **OVER(PARTITION BY [column_name])** - partitions the result set by the column parameter. The aggregate function is performed and grouped by each unique value in the specified column.
@@ -1636,3 +1638,233 @@ Use **EXTRACT** with any of the date/time units followed by the **FROM** keyword
 |  |  |
 | TO_DAYS('2018-12-30') - TO_DAYS('2018-12-03)    | 27 |
 | TIME_TO_SEC('10:00') - TIME_TO_SEC('09:59')    | 60 |
+
+## Searching for a date
+
+### Search for a range of dates
+```sql
+SELECT *
+FROM date_sample
+WHERE start_date >= '2018-02-28' AND start_date < '2018-03-01';
+```
+
+### Search for month, day, and year integers
+
+```sql
+SELECT * 
+FROM date_sample
+WHERE MONTH(start_date) = 2 AND
+   DAYOFMONTH(start_date) = 28 AND
+   YEAR(start_date) = 2018;
+```
+
+### Search for a formatted date
+```sql
+SELECT * 
+FROM date_sample
+WHERE DATE_FORMAT(start_date, '%m-%d-%Y') = '02-28-2018';
+```
+
+## Searching for a time
+
+### Search for a time that has been formatted
+```sql
+SELECT * FROM date_sample
+WHERE DATE_FORMAT(start_date, '%T') = '10:00:00'
+```
+
+### Search for a time that hasn't been formatted
+```sql
+SELECT * FROM date_sample
+WHERE EXTRACT(HOUR_SECOND FROM start_date) = 100000;
+```
+
+### Search for an hour of the day
+```sql
+SELECT * FROM date_sample
+WHERE HOUR(start_date) = 9;
+```
+
+### Search for a range of times
+```sql
+SELECT * FROM date_sample
+WHERE EXTRACT(HOUR_MINUTE FROM start_date) BETWEEN 900 AND 1200;
+```
+
+## CASE function
+
+Returns a value that's determined by the conditions you specify. When MySQL finds an expression in a **WHEN** clause that's equal to the input expression, it returns the expression specified in the matching **THEN** clause.
+
+**Example**
+
+The following example determines the status fo the invoices in the invoices table.
+
+```sql
+SELECT invoice_number, invoice_total, invoice_date, invoice_due_date,
+   CASE
+      WHEN DATEDIFF(NOW(), invoice_due_date) > 30
+         THEN 'Over 30 days past due'
+      WHEN DATEDIFF(NOW(), invoice_due_date) > 0
+         THEN '1 to 30 days past due'
+      ELSE 'Current'
+   END AS invoice_status
+FROM invoices
+WHERE invoice_total - payment_total - credit_total > 0;
+```
+
+## IF, IFNULL, COALESCE functions
+
+### IF function
+Use the **IF** function to test a conditino and return one value if the condition is true or another value if the condition is false.
+```sql
+SELECT vendor_name,
+   IF(vendor_city = 'Fresno', 'Yes', 'No') AS is_city_fresno
+FROM vendors;
+```
+### IFNULL function
+
+Allows you to substituted non-null values for null values. The following example returns the first expression if it isn't null. Otherwise, it returns the replacement value you specify. 
+
+```sql
+SELECT payment_date,
+   IFNULL(payment_date, 'No Payment') AS new_date
+FROM invoices;
+```
+### COALESCE function
+
+Allows you to substituted non-null values for null values from a list of values. Returns the first expression in the list that isn't null. If all of the expressions are null, this functionreturns a null value.
+
+```sql
+SELECT payment_date,
+   COALESCE(payment_date, 'No Payment') AS new_date
+FROM invoices;
+```
+
+## Regular expression functions
+
+Use a string pattern to search a string expression.
+
+| Function | Example | Result | Description |
+|:---------|:-------|:------------|:------------|
+| REGEXP_LIKE(expr, pattern) | REGEXP_LIKE('abc123', '123') | 1 | Returns 1 (true) if the string expression matches the pattern. Otherwise, returns 0 (false). |
+| REGEXP_LIKE(expr, pattern)| REGEXP_LIKE('abc123', '^123') | 0 | |
+| REGEXP_INSTR(expr, pattern[, start]) | REGEXP_LIKE('abc123', '123') | 4 | Returns the index of the first character of the substring in the string expression that matches the pattern, starting at the specified start position. If the startposition is omitted, the search starts at the beginning of the string. If the pattern ins't found, the function returns 0. |
+| REGEXP_SUBSTR(expr, pattern[, start]) | REGEXP_SUBSTR('abc123', '[A-Z][1-9]*$') | c123 | Returns the first substring of the string expression that matches thepattern starting at the specified position. If the start position is omitted, the first substring is returned. If the pattern isn't found, the function returns a null value. |
+| REGEXP_REPLACE(expr, pattern, replace[,start] | REGEXP_REPLACE('abc123', '1|2', '3') | abc333 | Returns the string expression with all occurrences of the pattern repaced with the replace string. |
+
+### REGEXP_INSTR function
+
+```sql
+SELECT DISTINCT vendor_city, REGEXP_INSTR(vendor_city, ' ') AS space_index
+FROM vendors
+WHERE REGEXP_INSTR(vendor_city, ' ') > 0
+ORDER BY vendor_city;
+```
+
+### REGEXP_SUBSTR function
+
+```sql
+SELECT vendor_city, REGEXP_SUBSTR(vendor_city, '^SAN|LOS') AS city_match
+FROM vendors
+WHERE REGEXP_SUBSTR(vendor_city, '^SAN|LOS') IS NOT NULL;
+```
+
+### REGEXP_REPLACE and REGEXP_LIKE functions
+
+```sql
+SELECT vendor_name, vendor_address1,
+   REGEXP_REPLACE(vendor_address1, 'STREET', 'St') AS new_address1
+FROM Vendors
+WHERE REGEXP_LIKE(vendor_address1, 'STREET');
+```
+
+## Ranking functions
+
+These are non-aggregate window functions, sometimes called specialiazed window functions. These functions are grouped into 2 groups: Ranking functions and analytical functions.
+
+### ROW_NUMBER function
+
+```sql
+SELECT ROW_NUMBER() OVER(PARTITION BY vendor_state                  (2), (3)
+   ORDER BY vendor_name) AS 'row_number', vendor_name, vendor_state (1)
+FROM vendors;
+```
+1. Detemines the sequence of the rows within the partitions
+2. Specifies the column that's used to divide the result set into groups.
+3. Returns the number of the current row within its partition, starting at 1 for the first row in each partition.
+
+### RANK and DENSE_RANK functions
+
+Both functions return the rank of each row within the partition of a result set. If there is a tie, both of these functions give the same rank to all rows that are tied. 
+
+```sql
+SELECT RANK() OVER(ORDER BY invoice_total) AS 'rank',           (1)
+   DENSE_RANK() OVER (ORDER BY invoice_total) AS 'dense_rank',  (2)
+   invoice_total, invoice_number
+FROM invoices;
+```
+1. To determine the rank for the next distinct row, **RANK** adds 1 to the total number of rows.
+2. To determine the rank for the next distinct row, **DENSE_RANK** adds 1 to the rank for the previous row.
+
+### NTILE function
+
+This function divides the rows in a partition into a specified number of groups and returns the group number of each row.
+
+```sql
+SELECT terms_description,
+   NTILE(2) OVER (ORDER BY terms_id) AS tile2,
+   NTILE(3) OVER (ORDER BY terms_id) AS tile3,
+   NTILE(4) OVER (ORDER BY terms_id) AS tile4,
+FROM terms;
+```
+
+## Analytic functions
+
+These functions let you perform calculations on ordered sets of data.  
+
+The **FIRST_VALUE**, **LAST_VALUE**, and **NTH_VALUE** let you return the first, last, and nth values in an ordered set of values. When you use the **PARTITION BY** clause with **LAST_VALUE** or **NTH_VALUE**, you typically include the **ROWS** or **RANGE** clause as well to define a subset of the current partition.
+
+### FIRST_VALUE, NTH_VALUE, and LAST_VALUE functions
+```sql
+SELECT sales_year, CONCAT(rep_first_name, ' ', rep_last_name) AS rep_name, sales total,
+   FIRST_VALUE(CONCAT(rep_first_name, ' ', rep_last_name))
+       OVER (PARTITION BY sales_year ORDER BY sales_total DESC)
+       AS highest_sales,
+    NTH_VALUE(CONCAT(rep_first_name, ' ', rep_last_name), 2)
+       OVER (PARTITION BY sales_year ORDER BY sales_total DESC
+       RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+       AS second_highest_sales,
+    LAST_VALUE(CONCAT(rep_first_name, ' ', rep_last_name))
+       OVER(PARTITION BY sales_year ORDER BY sales_total DESC
+       RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+       AS lowest_sales
+FROM sales_totals JOIN sales_reps ON sales_totals.rep_id = sales_reps.rep_id;
+```
+
+### LAG function
+
+```sql
+SELECT rep_id, sales_year, sales_total AS current_sales,
+   LAG(sales_total, 1, 0) OVER (PARTITION BY rep_id ORDER BY sales_year)    (1), (2)
+      AS last_sales,
+   sales_total - LAG(sales_total, 1, 0)
+      OVER (PARTITION BY rep_id ORDER BY sales_year) AS 'change'            (1)
+FROM sales_totals;
+```
+1. **OVER** clause is used to group the result set by the rep_id column and sort it by the sales_year column.
+2. **LAG** function gets the sales total from one row prior to the current row (the offset).
+
+### PERCENT_RANK and CUME_DIST functions
+
+The **PERCENT_RANK** calculates the rank of the values in a sorted set of values as a percent. Calculates a percent that indicates the rank of each row within a partition. The result of this function is always 0 or 1.  
+
+The **CUME_DIST** function calculates the percent of the values in a sorted set of values that are less than or equal to the current value. This represents the cumulative distribution - calculated by dividing the number of rows with the current value or a lower value by the total nubmer of rows in the partition.
+
+```sql
+SELECT sales_year, rep_id, sales_total,
+   PERCENT_RANK() OVER (PARTITION BY sales_year ORDER BY sales_total)
+      AS pct_rank,
+   CUME_DIST() OVER (PARTITION BY sales_year ORDER BY sales_total)
+      AS 'cume_dist'
+FROM sales_totals;
+```
