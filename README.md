@@ -13,6 +13,8 @@ Rows and columns are sometimes called records and fields, respectively
     <dd>Represents some sort of entity, like the amount of an invoice</dd>
     <dt>Composite primary key</dt>
     <dd>When a primary key uses two or more columns</dd>
+    <dt>Constraint</dt>
+    <dd>When assigning column attributes, a _constraint_ restricts the type of data that can be stored in a column. For example, <strong>NOT NULL</strong> and <strong>UNIQUE</strong>.</dd>
     <dt>Data type</dt>
     <dd>Determines the type of information that is stored in the column<br>
     Try to assign the data type that minimizes the use of disk storage because that improves the performance of queries later.
@@ -1867,4 +1869,356 @@ SELECT sales_year, rep_id, sales_total,
    CUME_DIST() OVER (PARTITION BY sales_year ORDER BY sales_total)
       AS 'cume_dist'
 FROM sales_totals;
+```
+
+# Working with databases
+
+## Creating a database
+```sql
+CREATE DATABASE [IF NOT EXISTS] dbName
+```
+
+## Dropping a database
+```sql
+CREATE DATABASE [IF EXISTS] dbName
+```
+
+## Use statement
+
+The **USE** statement selects the specified database and makes it the current database.
+
+## Creating a table
+
+The **CREATE TABLE** statement creates a new table in the current database. Alternately, you can qualify the table name with the correct database. For example, ```sql CREATE TABLE dbName.tableName;```.
+
+### Common column attributes
+
+| Attribute     | Description       |
+|:--------------|:------------------|
+| NOT NULL      | Indicates that the column doesn't accept null values. If omitted, the column can accept null values. |
+| UNIQUE        | Specifies that each value stored in the column must be unique. |
+| DEFAULT default_value | Specifies a defalut value for the column as a literal or as an expression    |
+| AUTO_INCREMENT    | Identifies a column whose value is incremented automatically when a new row is added. An auto increment column must be defined as an integer or floating-point number. |
+
+**NOTE**: NULL and UNIQUE are types of constraints.
+
+### Create a table without column attributes
+```sql
+CREATE TABLE vendors
+(
+    vendor_id       INT,
+    vendor_name     VARCHAR(50)
+)
+```
+
+### Create a table with column attributes
+```sql
+CREATE TABLE vendors
+(
+    vendor_id       INT             NOT NULL        UNIQUE AUTO_INCREMENT,
+    vendor_name     VARCHAR(50)     NOT NULL        UNIQUE  
+)
+```
+
+## Coding a primary key constraint
+
+Constraints are used to enforce the integrity of the data in a table by defining rules about the values that can be stored in the columns of the table.
+
+When you identify a column as the primary key, the following happens:
+- the column is forced to be **NOT NULL**
+- the column is forced to contain a unique value for each row.
+- An index is created automatically based on the column.
+
+### Column-level constraints
+
+Code a column-level constraint as part of the definition of the column it constrains.
+
+```sql
+CREATE TABLE vendors
+(
+    vendor_id       INT             PRIMARY KEY         AUTO_INCREMENT,
+    vendor_name     VARCHAR(50)     NOT NULL            UNIQUE
+)
+```
+
+### Table-level constraints
+
+Code a table-level constraint as if it is a separate column definition, and you name the columns it constrains within that definition.
+
+```sql
+CREATE TABLE vendors
+(
+    vendor_id           INT             AUTO_INCREMENT,
+    vendor_name         VARCHAR(50)     NOT NULL,
+    CONSTRAINT vendors_pk PRIMARY KEY (vendor_id),
+    CONSTRAINT vendor_name_uq UNIQUE (vendor_name)
+)
+```
+
+## Foreign-key constraints
+
+Also known as a _reference constraint_. This constraint requires values in one tabvle to match values in another table. Used to define the relationship between tables and to enforce referential integrity.   
+
+### Column-level foreign key constraint
+
+To create a foreign key constraing at the column level, you code the **REFERENCES** keyword followed by the name of the related table and the name of the related colum nin parentheses.
+
+```sql
+CREATE TABLE invoices
+(
+    invoice_id          INT             PRIMARY KEY,
+    vendor_id           INT             REFERENCES vendors (vendor_id),
+    invoice_number      VARCHAR(50)     NOT NULL        UNIQUE
+)
+```
+
+### Table-level foreign key constraint
+
+To create a foreign key constraing at the table level, include the **CONSTRAINT** keyword followed by a name, followed by the **FOREIGN KEY** keywords. This allows you to provide a name for the foreign key, which is a best practice.
+
+```sql
+CREATE TABLE invoices
+(
+    invoice_id          INT             PRIMARY KEY,
+    vendor_id           INT             NOT NULL,
+    invoice_number      VARCHAR(50)     NOT NULL        UNIQUE,
+    CONSTRAINT invoices_fk_vendors
+       FOREIGN KEY (vendor_id) REFERENCES vendors (vendor_id)
+)
+```
+
+## Alter constraints of a table
+
+Use the **ALTER TABLE** statement to add or drop the constraints of an existing table
+
+### Adds a new column
+
+```sql
+ALTER TABLE vendors
+ADD last_transaction_date DATE
+```
+
+### Drops a column
+
+```sql
+ALTER TABLE vendors
+DROP COLUMN last_transaction_date
+```
+
+### Change the length of the column
+
+```sql
+ALTER TABLE vendors
+MODIFY vendor_name VARCHAR(100) NOT NULL
+```
+
+### Change data type
+
+```sql
+ALTER TABLE vendors
+MODIFY vendor_name CHAR(100) NOT NULL
+```
+
+### Change default value of a column
+
+```sql
+ALTER TABLE vendors
+MODIFY vendor_name VARCHAR(100) NOT NULL DEFAULT 'New Vendor';
+```
+
+## Change name
+
+```sql
+ALTER TABLE vendors
+RENAME COLUMN vendor_name TO v_name;
+```
+
+## Alter the constraints of a table
+
+To drop a foreign key constraint, yoiu must know its name. If you don't, use a GUI tool to look it up.
+
+### Add a primary key constraint
+
+```sql
+ALTER TABLE vendors
+ADD PRIMARY KEY (vendor_id)
+```
+
+### Add a foreign key constraint
+
+```sql
+ALTER TABLE invoices
+ADD CONSTRAINT invoice_fk_vendors
+   FOREIGN KEY (vendor_id) REFERENCES vendors (vendor_id)
+```
+
+### Drop primary key constraint
+
+```sql
+ALTER TABLE vendors
+DROP PRIMARY KEY
+```
+
+### Drop foreign key constraint
+
+```sql
+ALTER TABLE invoices
+DROP PRIMARY KEY invoice_fk_vendors
+```
+
+## Rename, truncate, and drop a table
+
+Be careful with these statements!
+
+### Rename a table
+
+```sql
+RENAME TABLE vendors TO vendor
+```
+
+### Delete all data from a table 
+
+```sql
+TRUNCATE TABLE vendor
+```
+
+### Delete table from the current database
+
+```sql
+DROP TABLE vendor
+```
+
+### Qualifies the table to be deleted
+
+```sql
+DROP TABLE ex.vendor
+```
+
+## Indexes
+
+An index speeds up joins and searches by providing a way for a database management system to go directly to a row rather than having to search through all the rows until if finds the one that you want. By default, MySQL creates indexes for primary keys, foreign keys, and uique keys of a table.  
+
+You may want to create indexes for other columns that are used frequently in search conditions or joins. Avoid creating indexes on columns that are updated frequently since this slows down insert, update, and delete operations. You can also drop indexes from a table.
+
+### Create index based on single column
+
+```sql
+CREATE INDEX invoices_invoice_date_ix
+   ON invoices (invoice_date)
+```
+
+### Creates an index based on two columns
+
+```sql
+CREATE INDEX invoices_vendor_id_invoice_number_ix
+   ON invoices (invoice_id, invoice_number)
+```
+
+### Creates a unique index
+
+```sql
+CREATE UNIQUE INDEX vendors_vendor_phone_ix
+   ON vendors (vendor_phone)
+```
+
+### Creates an index sorted in DESC 
+
+```sql
+CREATE INDEX invoices_invoice_total_ix
+   ON invoices (vendor_phone DESC)
+```
+
+### Drops an index
+
+```sql
+DROP INDEX vendors_vendor_phone_ix ON vendors
+```
+
+## A script that creates an entire database
+
+A script is a file that contains one or more SQL statements. You must create the tables that don't have foreign keys ffirst. That way, the other tables can define foreign keys that refer to them.
+
+```sql
+-- create the database
+DROP DATABASE IF EXISTS ap;
+CREATE DATABASE ap;
+
+-- select the database
+USE ap;
+
+-- create the tables
+CREATE TABLE general_ledger_accounts
+(
+  account_number        INT            PRIMARY KEY,
+  account_description   VARCHAR(50)    UNIQUE
+);
+
+CREATE TABLE terms
+(
+  terms_id              INT            PRIMARY KEY,
+  terms_description     VARCHAR(50)    NOT NULL,
+  terms_due_days        INT            NOT NULL
+);
+
+CREATE TABLE vendors
+(
+  vendor_id                     INT            PRIMARY KEY   AUTO_INCREMENT,
+  vendor_name                   VARCHAR(50)    NOT NULL      UNIQUE,
+  vendor_address1               VARCHAR(50),
+  vendor_address2               VARCHAR(50),
+  vendor_city                   VARCHAR(50)    NOT NULL,
+  vendor_state                  CHAR(2)        NOT NULL,
+  vendor_zip_code               VARCHAR(20)    NOT NULL,
+  vendor_phone                  VARCHAR(50),
+  vendor_contact_last_name      VARCHAR(50),
+  vendor_contact_first_name     VARCHAR(50),
+  default_terms_id              INT            NOT NULL,
+  default_account_number        INT            NOT NULL,
+  CONSTRAINT vendors_fk_terms
+    FOREIGN KEY (default_terms_id)
+    REFERENCES terms (terms_id),
+  CONSTRAINT vendors_fk_accounts
+    FOREIGN KEY (default_account_number)
+    REFERENCES general_ledger_accounts (account_number)
+);
+CREATE TABLE invoices
+(
+  invoice_id            INT            PRIMARY KEY   AUTO_INCREMENT,
+  vendor_id             INT            NOT NULL,
+  invoice_number        VARCHAR(50)    NOT NULL,
+  invoice_date          DATE           NOT NULL,
+  invoice_total         DECIMAL(9,2)   NOT NULL,
+  payment_total         DECIMAL(9,2)   NOT NULL      DEFAULT 0,
+  credit_total          DECIMAL(9,2)   NOT NULL      DEFAULT 0,
+  terms_id              INT            NOT NULL,
+  invoice_due_date      DATE           NOT NULL,
+  payment_date          DATE,
+  CONSTRAINT invoices_fk_vendors
+    FOREIGN KEY (vendor_id)
+    REFERENCES vendors (vendor_id),
+  CONSTRAINT invoices_fk_terms
+    FOREIGN KEY (terms_id)
+    REFERENCES terms (terms_id)
+);
+
+CREATE TABLE invoice_line_items
+(
+  invoice_id              INT            NOT NULL,
+  invoice_sequence        INT            NOT NULL,
+  account_number          INT            NOT NULL,
+  line_item_amount        DECIMAL(9,2)   NOT NULL,
+  line_item_description   VARCHAR(100)   NOT NULL,
+  CONSTRAINT line_items_pk
+    PRIMARY KEY (invoice_id, invoice_sequence),
+  CONSTRAINT line_items_fk_invoices
+    FOREIGN KEY (invoice_id)
+    REFERENCES invoices (invoice_id),
+  CONSTRAINT line_items_fk_acounts
+    FOREIGN KEY (account_number)
+    REFERENCES general_ledger_accounts (account_number)
+);
+
+-- create an index
+CREATE INDEX invoices_invoice_date_ix
+  ON invoices (invoice_date DESC);
 ```
