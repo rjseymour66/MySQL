@@ -2547,4 +2547,299 @@ BEGIN
     ELSE
       SELECT 'Net due more than 30 days' AS Terms;
   END CASE;
+END//
 ```
+
+### While loops
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE i INT DEFAULT 1;
+  DECLARE s VARCHAR(400) DEFAULT '';
+
+  -- WHILE loop
+  WHILE i < 4 DO
+    SET s = CONCAT(s, 'i=', i, ' | ');
+    SET i = i + 1;
+  END WHILE;
+
+  -- REPEAT loop
+  /*
+  REPEAT
+    SET s = CONCAT(s, 'i=', i, ' | ');
+    SET i = i + 1;
+  UNTIL i = 4
+  END REPEAT;
+  */
+
+  -- LOOP with LEAVE statement
+  /*
+  testLoop : LOOP
+    SET s = CONCAT(s, 'i=', i, ' | ');
+    SET i = i + 1;
+
+    IF i = 4 THEN
+       LEAVE testLoop;
+    END IF;        
+  END LOOP testLoop;
+  */
+  
+  SELECT s AS message;
+
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+## Using a cursor
+
+Use a cursor when you need to work with the data in a result set one row at a time. Like a flag variable in Java.
+
+```sql
+-- Declare the cursor
+DECLARE cursomr_name CURSOR FOR select_statement; 
+
+
+-- Declare an error handler for when no rows are found in the cursor
+DECLARE CONTINUE HANDLER FOR NOT FOUND handler_statement;
+
+-- Open the cursor
+OPEN cursor_name;
+
+-- Get column values from the row and store them in series of variables
+FETCH cursor_name INTO variable1[, variable2][, variable3]...
+
+-- Close the cursor
+CLOSE cursor_name;
+```
+
+### Complete cursor example
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE invoice_id_var    INT;                                  (1)
+  DECLARE invoice_total_var DECIMAL(9,2);  
+  DECLARE row_not_found     TINYINT DEFAULT FALSE;
+  DECLARE update_count      INT DEFAULT 0;
+
+  DECLARE invoices_cursor CURSOR FOR                              (2)
+    SELECT invoice_id, invoice_total  FROM invoices
+    WHERE invoice_total - payment_total - credit_total > 0;
+    
+  DECLARE CONTINUE HANDLER FOR NOT FOUND                          (3)
+    SET row_not_found = TRUE;
+
+  OPEN invoices_cursor;                                           (4)
+    
+  WHILE row_not_found = FALSE DO                                  (5)
+    FETCH invoices_cursor INTO invoice_id_var, invoice_total_var;
+
+    IF invoice_total_var > 1000 THEN
+      UPDATE invoices
+      SET credit_total = credit_total + (invoice_total * .1)
+      WHERE invoice_id = invoice_id_var;
+
+      SET update_count = update_count + 1;
+    END IF;
+  END WHILE;
+  
+  CLOSE invoices_cursor;                                          (6)
+    
+  SELECT CONCAT(update_count, ' row(s) updated.');                (7)
+  
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+
+1. Begins by declaring four variables.
+2. Declares a cursor variable named invoices_cursor. Uses **SELECT** statement to define the result set for this cursor.
+3. Declares an error handler that's executed when no more rows are found in the result set for the cursor.
+  - Sets row_not_found to **TRUE**
+  - Following WHILE loop executes only while the row_not_found variable is equal to FALSE, so this error handler causes the WHILE loop to stop executing.
+4. Open the cursor
+5. Use a WHILE loop to loop through each row in the cursor.
+  - FETCH statement gets the column values from the next row and stores them in the variables that were declared earlier.
+  - Then, the IF statement checks whether the value of the invoice_total column for the current row is greater than 1000.
+  - If it is, the UPDATE statement adds 10% of the invoice_total column to the credit_total column for the row, and a SET statement increments the count of the number of rows that have been updated.
+6. Closes the cursor  
+7. Displays number of rows updated.
+
+## Error codes
+
+The following are the most common error codes, but there are thousands of error codes.
+
+| Error code | SQLSTATE code  | Description |
+|:-----------|:---------------|:------------|
+| 1329 | 02000 | Occurs when a program attempts to fetch data from a row that doesn't exist |
+| 1062 | 23000 | Occurs when a program attempts to store duplicate values in a column that has a unique constraint |
+| 1048 | 23000 | Occurs when a program attempts to insert a NULL value into a column that doesn't accept NULL values |
+| 1216 | 23000 | Occurs when a program attempts to add or update a child row but can't because of a foreign key constraint | 
+| 1217 | 23000 | Occurs when a program attempts to delete or update a parent row but can't because of a foreign key constraint |
+
+## Using condition handlers
+
+This is error handling. You want to handle exceptions before you put your stored programs into production. 
+
+### CONTINUE error handler
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE duplicate_entry_for_key INT DEFAULT FALSE;
+
+  DECLARE CONTINUE HANDLER FOR 1062                                               (1)
+    SET duplicate_entry_for_key = TRUE;                                           (2)
+
+  INSERT INTO general_ledger_accounts VALUES (130, 'Cash');
+  
+  IF duplicate_entry_for_key = TRUE THEN
+    SELECT 'Row was not inserted - duplicate key encountered.' AS message;
+  ELSE
+    SELECT '1 row was inserted.' AS message;    
+  END IF;
+
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+1. Declares a handler for error code 1062 using the keyword **CONTINUE**. This allows the procdure to contine executing when the error is encounters.
+2. Uses SET to set the variable to TRUE
+
+### EXIT error handler
+
+This code exits the current block of code as soon as it encounters an error.
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE duplicate_entry_for_key INT DEFAULT FALSE;
+  BEGIN
+    DECLARE EXIT HANDLER FOR 1062
+      SET duplicate_entry_for_key = TRUE;
+
+    INSERT INTO general_ledger_accounts VALUES (130, 'Cash');
+    
+    SELECT '1 row was inserted.' AS message;    
+  END;
+  
+  IF duplicate_entry_for_key = TRUE THEN
+    SELECT 'Row was not inserted - duplicate key encountered.' AS message;
+  END IF;
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+
+### Named condition error handler
+
+Use a named condition to handle the error that occurs when a row cannot be inserted. When this condition occurs, the stroed procedure displays a message that indicates that the row was not inserted because of a SQL exception.
+
+This is like using a language-defined exception in Java, like IOException.
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE sql_error INT DEFAULT FALSE;
+  BEGIN
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+      SET sql_error = TRUE;
+
+    INSERT INTO general_ledger_accounts VALUES (130, 'Cash');
+    
+    SELECT '1 row was inserted.' AS message;    
+  END;
+  
+  IF sql_error = TRUE THEN
+    SELECT 'Row was not inserted - SQL exception encountered.' AS message;	
+  END IF;
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+
+### Using multiple condition handlers
+
+If you use multiple condition handlers, the most specific error handlers are executed first, and the least specific/most general are executed last.
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE duplicate_entry_for_key INT DEFAULT FALSE;
+  DECLARE column_cannot_be_null   INT DEFAULT FALSE;
+  DECLARE sql_exception           INT DEFAULT FALSE;
+  
+  BEGIN
+    DECLARE EXIT HANDLER FOR 1062                           (1)
+      SET duplicate_entry_for_key = TRUE;
+    DECLARE EXIT HANDLER FOR 1048
+      SET column_cannot_be_null = TRUE;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+      SET sql_exception = TRUE;
+
+    INSERT INTO general_ledger_accounts VALUES (NULL, 'Test');
+    
+    SELECT '1 row was inserted.' AS message;    
+  END;
+  
+  IF duplicate_entry_for_key = TRUE THEN
+    SELECT 'Row was not inserted - duplicate key encountered.' AS message;
+  ELSEIF column_cannot_be_null = TRUE THEN
+    SELECT 'Row was not inserted - column cannot be null.' AS message;
+  ELSEIF sql_exception = TRUE THEN
+    SELECT 'Row was not inserted - SQL exception encountered.' AS message;	
+  END IF;
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+1. Declared condition handlers from most to least specific.
