@@ -2355,3 +2355,196 @@ CREATE OR REPLACE VIEW vendor_payment AS
    WHERE invoice_total - payment_total - credit_total >= 0
 WITH CHECK OPTION;
 ```
+
+# Stored programs
+
+Stored programs include procedural code that controls the flow of programs.
+
+| Type       | Description       |
+|:-----------|:------------------|
+| Stored procedure  | Can be called from an application that has access to the database. |
+| Stored function   | Can be called from a SQL statement. A stored function works much like the native functions like **CONCAT**. |
+| Trigger           | Is executed in response to an **INSERT**, **UPDATE**, or **DELETE** statement on a specified table. |
+| Event             | Is executed at a scheduled time.  |
+
+## Script for stored procedure named test
+
+**NOTE**: The **DELIMITER //** statement changes the delimter from the default semicolon delimiter (;) to two slashed (//)
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+-- Change statement delimiter from semicolon to double front slash 
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN 
+   DECLARE sum_balance_due_var DECIMAL(9, 2);
+
+   SELECT SUM(invoice_total - payment_total - credit_total)
+   INTO sum_balance_due_var
+   FROM invoices
+   WHERE vendor_id = 95;
+
+   IF sum_balance_due_var > 0 THEN
+      SELECT CONCAT('Balance due: $', sum_balance_due_var) AS message;
+    ELSE
+       SELECT 'Balance paid in full' AS message;
+   END IF;
+END//
+
+-- Change statement delimiter from double front slash to semicolon 
+DELIMITER ;
+
+CALL test();
+```
+
+### Flow of execution keywords
+
+| Keywords  | Description     |
+|:----------|:----------------|
+| IF...ELSEIF...ELSE | Controls the flow of execution based on a condition |
+| CASE...WHEN...ELSE | Controls the flow of execution based ona  condition |
+| WHILE...DO...LOOP | Repeats statements while a condition is true |
+| REPEAT...UNTIL...END REPEAT | Repeats statements while a condition is true |
+| DECLARE...CURSOR FOR | Defines a result set that can be processed by a loop. |
+| DECLARE...HANDLER | Defines a handler that's executed when a stroed program encounters and error. |
+
+### Display data and debug
+
+```sql
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+   SELECT 'This is a test.' AS messages;
+END//
+```
+
+### How to declare and set variables
+
+The following sets a variable to a literal value or an expression:
+```sql
+SET variable_name = {literal_value|expression};
+SET vendor_id_var = 95;
+```
+
+The following sets a variable to a selected value
+```sql
+SELECT column_1[, column_2]...
+INTO variable_name_1[, variable_name_2]...
+
+SELECT MAX(invoice_total), MIN(invoice_total), COUNT(invoice_id)
+INTO max_invoice_total, min_invoice_total, count_invoice_id
+```
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE max_invoice_total  DECIMAL(9,2);
+  DECLARE min_invoice_total  DECIMAL(9,2);
+  DECLARE percent_difference DECIMAL(9,4);
+  DECLARE count_invoice_id   INT;
+  DECLARE vendor_id_var      INT;
+  
+  SET vendor_id_var = 95;
+
+  SELECT MAX(invoice_total), MIN(invoice_total), COUNT(invoice_id)
+  INTO max_invoice_total, min_invoice_total, count_invoice_id
+  FROM invoices WHERE vendor_id = vendor_id_var;
+
+  SET percent_difference = (max_invoice_total - min_invoice_total) / 
+                         min_invoice_total * 100;
+  
+  SELECT CONCAT('$', max_invoice_total) AS 'Maximum invoice', 
+         CONCAT('$', min_invoice_total) AS 'Minimum invoice', 
+         CONCAT('%', ROUND(percent_difference, 2)) AS 'Percent difference',
+         count_invoice_id AS 'Number of invoices';
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+
+### Stored procedure that uses an IF statement
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+   DECLARE first_invoice_due_date DATE;
+
+   SELECT MIN(invoice_due_date)
+   INTO first_invoice_due_date
+   FROM invoices
+   WHERE invoice_total - payment_total - credit_total > 0;
+
+   IF first_invoice_due_date < NOW() THEN
+     SELECT 'Outstanding invoices are overdue!';
+   ELSEIF first_invoice_due_date = SYSDATE() THEN
+     SELECT 'Outstanding invoices are due today!';
+   ELSE
+     SELECT 'No invoices are overdue.';
+   END IF;
+
+  -- the IF statement rewritten as a Searched CASE statement
+  /*
+  CASE  
+    WHEN first_invoice_due_date < NOW() THEN
+      SELECT 'Outstanding invoices overdue!' AS Message;
+    WHEN first_invoice_due_date = NOW() THEN
+      SELECT 'Outstanding invoices are due today!' AS Message;
+    ELSE
+      SELECT 'No invoices are overdue.' AS Message;
+  END CASE;
+  */
+  
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+
+### Case statements
+
+Similar to a switch statement in Java.
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE terms_id_var INT;
+
+  SELECT terms_id INTO terms_id_var 
+  FROM invoices WHERE invoice_id = 4;
+
+  CASE terms_id_var
+    WHEN 1 THEN 
+      SELECT 'Net due 10 days' AS Terms;
+    WHEN 2 THEN 
+      SELECT 'Net due 20 days' AS Terms;      
+    WHEN 3 THEN 
+      SELECT 'Net due 30 days' AS Terms;      
+    ELSE
+      SELECT 'Net due more than 30 days' AS Terms;
+  END CASE;
+```
