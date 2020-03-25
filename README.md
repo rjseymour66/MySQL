@@ -2100,6 +2100,16 @@ An index speeds up joins and searches by providing a way for a database manageme
 
 You may want to create indexes for other columns that are used frequently in search conditions or joins. Avoid creating indexes on columns that are updated frequently since this slows down insert, update, and delete operations. You can also drop indexes from a table.
 
+### Standard index naming convention
+
+```sql
+table_column_ix
+```
+
+```sql
+invoices_invoice_date_ix
+```
+
 ### Create index based on single column
 
 ```sql
