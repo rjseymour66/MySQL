@@ -2276,3 +2276,82 @@ ALTER TABLE product_descriptions ENGINE = InnoDB;
 ```sql
 SET SESSION default_storage_engine = InnoDB;
 ```
+
+# Create views
+
+A view is a **SELECT** statement that is stored in the database as a database object. Think of it as a virtyal table that consists of only the rows and columns specified in its **CREATE VIEW** statement.
+
+When you save queries, you can store them in a script or you can save them in a view. Views are not stored in files, they are stored as part of the database. So, they can be used by SQL programmers and by custom applications that have access to the database.
+
+## Create view statement for view named vendors_min
+
+```sql
+CREATE VIEW vendors_min AS 
+   SELECT vendor_name, vendor_state, vendor_phone
+   FROM vendors;
+```
+
+```sql
+CREATE VIEW vendors_sw AS
+SELECT *
+FROM vendors
+WHERE vendor_state IN ('CA', 'AZ', 'NV', 'NM');
+```
+
+## SELECT statement that uses vendors_min view
+
+```sql
+SELECT * FROM vendors_min
+WHERE vendor_state = 'CA'
+ORDER BY vendor_name;
+```
+
+## UPDATE statement that uses vendors_min view
+
+```sql
+UPDATE vendors_min
+SET vendor_phone = '(800) 555-3941'
+WHERE vendor_name = 'Register of Copyrights';
+```
+
+## Drop a view
+
+```sql
+DROP VIEW vendors_min;
+```
+
+## Using REPLACE
+
+When you code a view, you can specify that you want to automatically drop a view that has the same name as the view that you're creating by using the **OR REPLACE** keywords after the **CREATE** keyword.
+
+```sql
+CREATE OR REPLACE VIEW vendor_invoices AS 
+   SELECT vendor_name, invoice_number, invioce_date, invoice_total
+   FROM vendors
+      JOIN invoices ON vendors.vendor_id = invoices.vendor_id;
+```
+
+## Updatable view
+
+To be an updatable view, a view must meet the following requirements:
+- The **SELECT** list can't include the **DISTINCT** keyword or an aggregate function
+- The **SELECT** statement can't include a **GROUP BY** or **HAVING** clause
+- Two **SELECT** statements cannot be joined by a union operation
+
+To **INSERT** rows into views, you must make sure that the **INSERT** statement includes the all the rows as the view. 
+
+If a view is updatable, you can use the **INSERT**, **UPDATE**, or **DELETE** clauses with them. If a view isn't updatable, its a read-only view.
+
+## WITH CHECK option clause
+
+If you specify a **WITH CHECK OPTION** clause when you creat a view, an error will occur if you try to modify a row in such a way that it would no longer be included in the view.  
+This clause prevents an update if it causes the row to be excluded from the view.
+
+```sql
+CREATE OR REPLACE VIEW vendor_payment AS
+   SELECT vendor_name, invoice_number, invoice_date, payment_date,
+      invoice_total, credit_total, payment_total
+   FROM vendors JOIN invoices ON vendors.vendor_id = invoices.vendor_id
+   WHERE invoice_total - payment_total - credit_total >= 0
+WITH CHECK OPTION;
+```
