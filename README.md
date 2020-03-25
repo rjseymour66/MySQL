@@ -2222,3 +2222,47 @@ CREATE TABLE invoice_line_items
 CREATE INDEX invoices_invoice_date_ix
   ON invoices (invoice_date DESC);
 ```
+
+# Storage engines
+
+A storage engine determines how MySQL stores data and which database features are available to you.
+
+## View all the storage engines available on the server
+
+```sql
+SHOW ENGINES;
+```
+
+## View the default storage engine for a server
+
+```sql
+SHOW VARIABLES LIKE 'default_storage_engine';
+```
+
+## View the storage engine for all the tables in a database
+
+```sql
+SELECT table_name, engine
+FROM information_schema.tables
+WHERE table_schema = 'ap';
+```
+
+## Specify a storage engine for a table
+```sql
+CREATE TABLE product_descriptions
+(
+    product_id              INT             PRIMARY KEY,
+    product_description     VARCHAR(200)    
+)
+ENGINE = MyISAM;
+```
+## Specify an engine for an existing table
+```sql
+ALTER TABLE product_descriptions ENGINE = InnoDB;
+```
+
+## Set the default storage engine for the current session
+
+```sql
+SET SESSION default_storage_engine = InnoDB;
+```
