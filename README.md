@@ -2843,3 +2843,153 @@ DELIMITER ;
 CALL test();
 ```
 1. Declared condition handlers from most to least specific.
+
+# Transactions and locking 
+
+## Transactions
+
+A transaction is a group of SQL statements that you combine into a single logical unit of work. Combining the SQL statements can prevent certain kinds of database errors. 
+
+**NOTE**: Some storage engines do not support transactions.
+
+To start a transaction, code the **START TRANSACTION** statement. This turns off autocommit mode until the statements in the transaction are committed or rolled back. To commit changes, code a **COMMIT** statement. TO roll back the changes, use a ROLLBACK statment. 
+
+```sql
+USE ap;
+
+DROP PROCEDURE IF EXISTS test;
+
+DELIMITER //
+
+CREATE PROCEDURE test()
+BEGIN
+  DECLARE sql_error INT DEFAULT FALSE;
+  
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION
+    SET sql_error = TRUE;
+
+  START TRANSACTION;                                  (1)
+  
+  INSERT INTO invoices
+  VALUES (115, 34, 'ZXA-080', '2014-06-30', 
+          14092.59, 0, 0, 3, '2014-09-30', NULL);
+
+  INSERT INTO invoice_line_items 
+  VALUES (115, 1, 160, 4447.23, 'HW upgrade');
+  
+  INSERT INTO invoice_line_items 
+  VALUES (115, 2, 167, 9645.36, 'OS upgrade');
+  
+  IF sql_error = FALSE THEN
+    COMMIT;                                           (2)
+    SELECT 'The transaction was committed.';
+  ELSE
+    ROLLBACK;                                         (3)
+    SELECT 'The transaction was rolled back.';
+  END IF;
+END//
+
+DELIMITER ;
+
+CALL test();
+```
+1. The **START TRANSACTION** statement
+2. The **COMMIT** statement
+3. The **ROLLBACK** statement 
+
+### Working with save points
+
+A **SAVEPOINT** statement is used to identify a save point a statement that is included in the script.  
+When you use save points, you can roll back a transaction to the beginnning of the transaction or to a particular save point. 
+
+```sql
+USE ap;
+
+START TRANSACTION;
+  
+SAVEPOINT before_invoice;                               (1)
+
+INSERT INTO invoices
+VALUES (115, 34, 'ZXA-080', '2015-01-18', 
+        14092.59, 0, 0, 3, '2015-04-18', NULL);
+
+SAVEPOINT before_line_item1;                            (1)
+
+INSERT INTO invoice_line_items 
+VALUES (115, 1, 160, 4447.23, 'HW upgrade');
+  
+SAVEPOINT before_line_item2;                            (1)
+
+INSERT INTO invoice_line_items 
+VALUES (115, 2, 167, 9645.36,'OS upgrade');
+
+-- SELECT invoice_id, invoice_sequence FROM invoice_line_items WHERE invoice_id = 115;
+ROLLBACK TO SAVEPOINT before_line_item2;                (2)
+
+-- SELECT invoice_id, invoice_sequence FROM invoice_line_items WHERE invoice_id = 115;
+ROLLBACK TO SAVEPOINT before_line_item1;                (2)
+
+-- SELECT invoice_id, invoice_sequence FROM invoice_line_items WHERE invoice_id = 115;
+ROLLBACK TO SAVEPOINT before_invoice;                   (2)
+
+-- SELECT invoice_id, invoice_number FROM invoices WHERE invoice_id = 115;
+COMMIT;
+```
+1. Create a save point with the specified name
+2. Use the **ROLLBACK TO SAVEPOINT** statement to roll back a transaction to the specified save point
+
+# Concurrency and locking
+
+Concurrency is when two or more users have access to the same database and they are working on the same data at the same time. Concurrency is a  problem when one user updates data that other users are also viewing or updating.
+
+Use **START TRANSACTION** and **COMMIT** to lock the data you are working to prevent concurrency issues.
+
+### Setting the transaction isolation level
+ The transaction isolation level controls the degree to which transactions are isolated from one another. At the more restrictive isolation levels, concurrency problems are reduced or eliminated. 
+
+ Use the following for levels:
+ 1. **READ UNCOMMITTED**
+ 2. **READ COMMITTED**
+ 3. **REPEATABLE READ**
+ 4. **SERIALIZABLE**
+
+ ```sql
+ SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+ ```
+
+ ### How to lock selected rows
+
+ In some cases, the default isolation levels do not work the way you want. So, you can use the following statements:
+
+- **SELECT** ... **FOR SHARE** locks the selected rows so that other transactions can read those rows but cannot modiy them until the transaction commits. If this statement attempts to read any rows that have been locked for update by another transaction, it waits until that transaction commits so that it can ue the most current values.
+- **SELECT** ... **FOR UPDATE** locks the selected rows and any associated indexes so that other transactions can't read or modify them until the transaction commits. If this statement attempts to read any rows that have been locked for share or for update by another transaction, it waits until that transaction commits so it can use the most current values.
+- **SELECT** ... **FOR UPDATE NOWAIT**, doesn't wait for a lock to be released, it returns an error immediatley.
+- **SELECT** ... **FOR UPDATE SKIP LOCKED**, the statement doesn't wait for a lock to be released, it skips the locked rows and returns any rows that are not locked.
+
+```sql
+USE ex;
+
+-- Transaction B
+START TRANSACTION;
+SELECT * FROM sales_reps WHERE rep_id < 5 FOR UPDATE;
+COMMIT;
+
+-- Transaction C
+START TRANSACTION;
+SELECT * FROM sales_reps WHERE rep_id < 5 FOR UPDATE NOWAIT;
+COMMIT;
+
+-- Transaction D
+START TRANSACTION;
+SELECT * FROM sales_reps WHERE rep_id < 5 FOR UPDATE SKIP LOCKED;
+COMMIT;
+```
+### Deadlocks
+
+A deadlock occurs when neither of two transactins can be committed because each transaction has a lock on a resource needed by the other transaction.
+
+# Creating stored procedures and functions
+
+# Triggers
+
+A trigger is a named database object that is executed, or fired, automatically when a particular type of SQL statement is executed. 
