@@ -2992,4 +2992,13 @@ A deadlock occurs when neither of two transactins can be committed because each 
 
 # Triggers
 
-A trigger is a named database object that is executed, or fired, automatically when a particular type of SQL statement is executed. 
+A trigger is a named database object that is executed, or fired, automatically when a particular type of SQL statement is executed. Triggers can be used to enforce rules for data consistency that can't be enforced by constraints.
+
+**AFTER triggers** are used to store information about a statement after it executes. For example, an audit table. 
+
+# Backup and restore
+
+You should regularly back up the database in case the database becomes corrupted.  
+A **full backup** includes the structure and content of a database. You should perform these according to a regular schedule.  
+An **incremental backup** contains only changes that have been made to the structure and content of a database since the last full backup.  
+A **point-in-time recovery (PITR)** allows you to restore the data up to any specified point in time. 
