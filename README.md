@@ -152,21 +152,6 @@ WHERE  vendor_zip_code NOT BETWEEN 93600 AND 93799;
 
 
 
-
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
-<dt></dt>
-<dd></dd>
- 
-
 **** or **** -  
  
     
@@ -215,234 +200,272 @@ WHERE  vendor_zip_code NOT BETWEEN 93600 AND 93799;
         WHERE column_1 - column_2 > 0
         ORDER BY column_1 
 ## SELECT 
-    Syntax 
-        SELECT select_list 
-        [FROM table_source]
-        [WHERE search_condition]
-        [ORDER BY order_by_list]
-        [LIMIT row_limit]
-    Testing
-        Use SELECT clauses without a FROM clause to test expressions and functions.
-            Example:
-                SELECT CURRENT_DATE,
-                    DATE_FORMAT(CURRENT_DATE, '%m/%d/%y') AS 'MM/DD/YY',
-                    DATE_FORMAT(CURRENT_DATE, '%e-%b-%Y') AS 'DD-Mon-YYYY';
 
-                SELECT 12345.6789 AS value,
-                    ROUND(12345.6789) AS nearest_dollar,
-                    ROUND(12345.6789, 1) AS nearest_dime;
-    DISTINCT - use DISTINCT if you do not want the results table to include duplicate rows. 
+### Syntax
+```sql
+SELECT select_list 
+[FROM table_source]
+[WHERE search_condition]
+[ORDER BY order_by_list]
+[LIMIT row_limit]
+```
+
+### Testing
+
+Use SELECT clauses without a FROM clause to test expressions and functions.
+```css
+SELECT CURRENT_DATE,
+   DATE_FORMAT(CURRENT_DATE, '%m/%d/%y') AS 'MM/DD/YY',
+   DATE_FORMAT(CURRENT_DATE, '%e-%b-%Y') AS 'DD-Mon-YYYY';
+
+SELECT 12345.6789 AS value,
+   ROUND(12345.6789) AS nearest_dollar,
+   ROUND(12345.6789, 1) AS nearest_dime;
+```
+
+`DISTINCT` - use `DISTINCT` if you do not want the results table to include duplicate rows. 
 
 
 ## Column specifications
-    Base table value 
-        All columns = *
-        Column name = column_name 
-    Calculated value 
-        Result of a calculation = arithmetic expression
-        Result of a function = functions (CONCAT, etc.)
+Base table value 
+   All columns = *
+   Column name = column_name 
+Calculated value 
+   Result of a calculation = arithmetic expression
+   Result of a function = functions (CONCAT, etc.)
 
 ## Arithmetic operators 
-    *
-    /
-    DIV - integer division
-    % (MOD)
-    +
-    -
+`*`
+`/`
+`DIV` - integer division
+`%` (MOD)
+`+`
+`-`
 
 ## Logical operators 
-    AND and OR - combine two or more search conditions in to a compound condition 
-        Example: 
-            WHERE vendor_state = 'NJ' AND vendor_city = 'Springfield';
-            WHERE vendor_state = 'NJ' OR vendor_city = 'Springfield';
-    NOT - used to negate a search condition 
-        Example:
-            WHERE NOT vendor_state = 'CA';
-            Vendors in CA are not returned
-    Order of precedence
-        1. NOT
-        2. AND
-        3. OR
+AND and OR - combine two or more search conditions in to a compound condition 
+
+Example: 
+`WHERE vendor_state = 'NJ' AND vendor_city = 'Springfield';`
+`WHERE vendor_state = 'NJ' OR vendor_city = 'Springfield';`
+NOT - used to negate a search condition 
+
+
+Example:
+`WHERE NOT vendor_state = 'CA';`
+Vendors in CA are not returned
+Order of precedence
+   1. NOT
+   2. AND
+   3. OR
 
 ## Functions 
-    Functions are used in the SELECT clause 
-    CONCAT - used to join strings. 
-        CONCAT(string1[, string2]...)
-        Example:
-            SELECT  vendor_name,
-                    CONCAT(vendor_city, ', ', vendor_state, ' ', vendor_zip_code)
-                        AS address 
-            FROM vendors;
-    LEFT - used to extract the x amount of characters from the left of the results of the query 
-        Example: 
-            LEFT(column_name, x)
-            LEFT(vendor_contact_first_name, 1) 
+   
+Functions are used in the SELECT clause 
 
-            SELECT  vendor_contact_first_name, vendor_contact_last_name,
-                CONCAT(LEFT(vendor_contact_first_name, 1),
-                       LEFT(vendor_contact_last_name, 1)) AS initials
-            FROM vendors;
-    DATE_FORMAT - specify the format of a date. use the % signto identify a format code.
-        For example, '%m/%d/%y' returns 04/08/18
+### CONCAT - used to join strings. 
+`CONCAT(string1[, string2]...)`
 
-    ROUND - rounds the value of the column to the nearest place, depending on the optional parameter.
-        ROUND(nearest_penny, 2) returns 12.21
-        ROUND(nearest_dime, 1) returns 12.2
-    CURRENT_DATE - returns the current date 
+```sql
+SELECT  vendor_name,
+   CONCAT(vendor_city, ', ', vendor_state, ' ', vendor_zip_code)
+      AS address 
+FROM vendors;
+```
+`LEFT` - used to extract the x amount of characters from the left of the results of the query 
+      
+`LEFT(column_name, x)`
+`LEFT(vendor_contact_first_name, 1) `
+
+```sql
+SELECT  vendor_contact_first_name, vendor_contact_last_name,
+   CONCAT(LEFT(vendor_contact_first_name, 1),
+      LEFT(vendor_contact_last_name, 1)) AS initials
+FROM vendors;
+```
+
+`DATE_FORMAT` - specify the format of a date. use the % signto identify a format code.
+
+For example, '%m/%d/%y' returns 04/08/18
+
+`ROUND` - rounds the value of the column to the nearest place, depending on the optional parameter.
+   `ROUND(nearest_penny, 2) returns 12.21`
+   `ROUND(nearest_dime, 1) returns 12.2`
+`CURRENT_DATE` - returns the current date 
 
 
 ## JOINS
-    Retrives data from two tables and joins it together in a single result set 
-        INNER JOIN - most common type of join. 
-        Rows from the two tables in the join are included in the result table only if their related columns match.
-            These columns are specified in the FROM clause of the SELECT statement. 
+    
+Retrives data from two tables and joins it together in a single result set 
 
-    Example: 
-        SELECT vendor_name, invoice_number, invoice_date, invoice_total (1)
-        FROM vendors INNER JOIN invoices (2)
-            ON vendors.vendor_id = invoices.vendor_id (3)
-        WHERE invoice_total >= 500 (4)
-        ORDER BY vendor_name, invoice_total DESC; (5)
+`INNER JOIN` - most common type of join. 
+Rows from the two tables in the join are included in the result table only if their related columns match.
+These columns are specified in the FROM clause of the SELECT statement. 
 
-        (1) SELECTs 4 rows FROM the vendors table that it will use in the result set
-        (2) Defines the two tables that it wants to use to create an INNER JOIN (vendors and invoices)
-        (3) Defines the common column(s) that must exist in each table (vendor_id)
-            If a vendor in the vendors tables does not have an invoice listed in the invoices table, then it is not in the results table for this INNER JOIN. For example, a new vendor that has not yet generated an invoice.
-        (4) Filters the overlapping column by a value 
-        (5) Sorts the column 
-        
-        
-        , then includes the rows only if the value of the vendor_id column in the vendors table matches the value of the vendor_id column in one or more rows in the invoices table. 
-        Then, it filters the results 
-        If there are not any invoices for a particular vendor, that vendor is not included in the result set.
+```sql
+SELECT vendor_name, invoice_number, invoice_date, invoice_total (1)
+FROM vendors INNER JOIN invoices (2)
+   ON vendors.vendor_id = invoices.vendor_id (3)
+WHERE invoice_total >= 500 (4)
+ORDER BY vendor_name, invoice_total DESC; (5)
+```
+
+1. SELECTs 4 rows FROM the vendors table that it will use in the result set
+2. Defines the two tables that it wants to use to create an INNER JOIN (vendors and invoices)
+3. Defines the common column(s) that must exist in each table (vendor_id)
+   If a vendor in the vendors tables does not have an invoice listed in the invoices table, then it is not in the results table for this INNER JOIN. For example, a new vendor that has not yet generated an invoice.
+4. Filters the overlapping column by a value 
+5. Sorts the column
 
 # Retrieve data from multiple tables 
 
 ## INNER JOIN
-    Combines columns from 2 or more tables into a result set based on the join conditions
-    For inner joins, only the two rows that satisfy the join condition are included in the result set 
-    How to code inner join:
-        Code the names of the 2 tables in the FROM clause along with the JOIN keyword and an ON phrase that specifies the join condition
-        Example: 
-            SELECT invoice_number, vendor_name              (1)
-            FROM vendors INNER JOIN invoices                (2)
-                ON vendors.vendor_id = invoices.vendor_id   (3)
-            ORDER BY invoice_number;                        (4)
+Combines columns from 2 or more tables into a result set based on the join conditions
+For inner joins, only the two rows that satisfy the join condition are included in the result set 
 
-            (1) Standard SELECT clause 
-            (2) FROM clause that names the two tables that are joined 
-                'INNER' keyword is optional
-            (3) ON phrase that names the columns where the tables are joined and how they are compared 
-                columns preceded by 'table_name.' are called 'qualified columns' because you have explain which table they came from 
-            (4) Standard ORDER BY clause 
+### How to code inner join:
+Code the names of the 2 tables in the FROM clause along with the JOIN keyword and an ON phrase that specifies the join condition
 
-    Implicit syntax 
-        Not used often, prefer Explicit syntax outlined above. 
-        Code the tables in the FROM clause separated by commas. 
-        Example: 
-            SELECT invoice_number, vendor_name
-            FROM vendors v, invoices i  (1)
-            WHERE v.vendor_id = i.vendor_id
-            ORDER BY invoice_number;
+```sql
+SELECT invoice_number, vendor_name              (1)
+FROM vendors INNER JOIN invoices                (2)
+   ON vendors.vendor_id = invoices.vendor_id    (3)
+ORDER BY invoice_number;                        (4)
+```
 
-            (1) Table names are separated by commas instead of 'INNER JOIN'
+1. Standard `SELECT` clause 
+2. `FROM` clause that names the two tables that are joined 
+   `INNER` keyword is optional
+3. `ON` phrase that names the columns where the tables are joined and how they are compared 
+      columns preceded by `table_name`. are called 'qualified columns' because you have explain which table they came from 
+4. Standard `ORDER BY` clause 
 
-    Table aliases 
-        An alternative table name thats typically just a letter or two. Like a variable.
-        Makes the statement easier to read. 
-            Example:
-                SELECT  invoice_number, vendor_name, invoice_due_date,
-				invoice_total - payment_total - credit_total AS balance_due
-                FROM vendors v JOIN invoices i  (1)
-                    ON v.vendor_id = i.vendor_id    (2)
-                WHERE invoice_total - payment_total - credit_total > 0
-                ORDER BY invoice_due_date DESC;
+### Implicit syntax 
 
-                (1) FROM clause that names the two tables and assigns them aliases 
-                (2) use the aliases to qualify the columns 
-    JOIN to a table in another db 
-        Tables are organized into databases, which are also called schemas 
-        Example: 
-            SELECT vendor_name, customer_last_name, customer_first_name,
-                vendor_state AS state, vendor_city AS city
-            FROM vendors v
-                JOIN om.customers c (1)
-                ON v.vendor_zip_code = c.customer_zip
-            ORDER BY state, city;
+Not used often, prefer Explicit syntax outlined above. 
+Code the tables in the `FROM` clause separated by commas. 
 
-            (1) 'om' is the name of the db, 'customers' is the name of the table, 'c' is the name of the table alias 
+```sql
+SELECT invoice_number, vendor_name
+FROM vendors v, invoices i  (1)
+WHERE v.vendor_id = i.vendor_id
+ORDER BY invoice_number;
+```
+1. Table names are separated by commas instead of 'INNER JOIN'
 
-    Compound JOIN 
-        Create two or more comparisons in a join condition using the AND or OR operators 
-        Example: 
-            SELECT customer_first_name, customer_last_name
-            FROM customers c JOIN employees e 
-                ON c.customer_first_name = e.first_name
-                AND c.customer_last_name = e.last_name; (1)
-            (1) Return first and last names of all customers in the Customers table whose first and last names also exist in the Employees table. 
-    Self JOIN 
-        Joins a table to itself. Useful for retrieving data that can't be retrieved any other way. 
-        Example: 
-            SELECT DISTINCT v1.vendor_name, v1.vendor_city,
-                v1.vendor_state
-            FROM vendors v1 JOIN vendors v2     (1)
-                ON v1.vendor_city = v2.vendor_city AND      (2)
-                    v1.vendor_state = v2.vendor_state AND
-                    v1.vendor_name = v2.vendor_name
-            ORDER BY v1.vendor_state, v1.vendor_city;
+### Table aliases 
+An alternative table name thats typically just a letter or two. Like a variable.  
+Makes the statement easier to read. 
 
-            (1) Use aliases to distinguish one occurence of the table from the other 
-            (2) Returns rows from the vendors table where the vendor is in a city and state that has at least one other vendor. 
-                It does not return a vendor if that vendor is th only vendor in that city and state. 
+```sql
+SELECT  invoice_number, vendor_name, invoice_due_date,
+   invoice_total - payment_total - credit_total AS balance_due
+FROM vendors v JOIN invoices i  (1)
+   ON v.vendor_id = i.vendor_id    (2)
+WHERE invoice_total - payment_total - credit_total > 0
+ORDER BY invoice_due_date DESC;
+```
+1. FROM clause that names the two tables and assigns them aliases 
+2. use the aliases to qualify the columns
+ 
+### JOIN to a table in another db 
+Tables are organized into databases, which are also called schemas 
+        
+```sql
+SELECT vendor_name, customer_last_name, customer_first_name,
+   vendor_state AS state, vendor_city AS city
+FROM vendors v
+   JOIN om.customers c (1)
+   ON v.vendor_zip_code = c.customer_zip
+ORDER BY state, city;
+```
+1. 'om' is the name of the db, 'customers' is the name of the table, 'c' is the name of the table alias 
+
+### Compound JOIN 
+Create two or more comparisons in a join condition using the AND or OR operators 
+
+```sql
+SELECT customer_first_name, customer_last_name
+FROM customers c JOIN employees e 
+   ON c.customer_first_name = e.first_name
+   AND c.customer_last_name = e.last_name; (1)
+```
+1. Return first and last names of all customers in the Customers table whose first and last names also exist in the Employees table. 
     
-    JOIN more than two tables
-        Example:
-            This example joins tables based on the relationship between the primary key of one table and a foreign key of the other table. 
-            The account_number column is the primary key of the General_Ledger_Accounts table and a foreign key of the Invoice_Line_Items table 
+### Self JOIN 
 
-            SELECT vendor_name, invoice_number, invoice_date,
-                line_item_amount, account_description
-            FROM vendors v
-                JOIN invoices i
-                    ON v.vendor_id = i.vendor_id
-                JOIN invoice_line_items li
-                    ON i.invoice_id = li.invoice_id
-                JOIN general_ledger_accounts gl
-                    ON li.account_number = gl.account_number
-            WHERE invoice_total - payment_total - credit_total > 0
-            ORDER BY vendor_name, line_item_amount DESC;
+Joins a table to itself. Useful for retrieving data that can't be retrieved any other way. 
+
+```sql
+SELECT DISTINCT v1.vendor_name, v1.vendor_city,
+   v1.vendor_state
+FROM vendors v1 JOIN vendors v2     (1)
+   ON v1.vendor_city = v2.vendor_city AND      (2)
+      v1.vendor_state = v2.vendor_state AND
+      v1.vendor_name = v2.vendor_name
+ORDER BY v1.vendor_state, v1.vendor_city;
+```
+1. Use aliases to distinguish one occurence of the table from the other 
+2. Returns rows from the vendors table where the vendor is in a city and state that has at least one other vendor.  
+It does not return a vendor if that vendor is th only vendor in that city and state. 
+    
+### JOIN more than two tables
+        
+This example joins tables based on the relationship between the primary key of one table and a foreign key of the other table.   
+The account_number column is the primary key of the General_Ledger_Accounts table and a foreign key of the Invoice_Line_Items table 
+
+```sql
+SELECT vendor_name, invoice_number, invoice_date,
+   line_item_amount, account_description
+FROM vendors v
+   JOIN invoices i
+      ON v.vendor_id = i.vendor_id
+   JOIN invoice_line_items li
+      ON i.invoice_id = li.invoice_id
+   JOIN general_ledger_accounts gl
+      ON li.account_number = gl.account_number
+WHERE invoice_total - payment_total - credit_total > 0
+ORDER BY vendor_name, line_item_amount DESC;
+```
+
 
 ## OUTER JOINS 
-    Returns all of the rows from one of the tables involved in the join, plus unmatched rows in the LEFT or RIGHT table, regardless of whether the join condition is true 
-    LEFT or RIGHT keyword 
-        LEFT - the result set includes all the rows from the first (left) table 
-        RIGHT - the result set includes all the rows from the second (right) table 
-        Example: 
-        The following joins the vendors and invoices tables, and includes rows from the vendor column even if no matching invoices are found. If none are found, null vbalues are returned for those columns. 
 
-        Example 1:
-            SELECT vendor_name, invoice_number, invoice_total
-            FROM vendors LEFT JOIN invoices
-                ON vendors.vendor_id = invoices.vendor_id 
-            ORDER BY vendor_name;
+Returns all of the rows from one of the tables involved in the join, plus unmatched rows in the LEFT or RIGHT table, regardless of whether the join condition is true 
 
-        Example 2:
-        Combination of INNER and OUTER JOIN
-            SELECT department_name, last_name, project_number
-            FROM departments d  
-                JOIN employees e
-                    ON d.department_number = e.department_number
-                LEFT JOIN projects p 
-                    ON e.employee_id = p.employee_id
-            ORDER BY department_name, last_name;
+### LEFT or RIGHT keyword 
 
+`LEFT` - the result set includes all the rows from the first (left) table 
+`RIGHT` - the result set includes all the rows from the second (right) table 
+   
+The following joins the vendors and invoices tables, and includes rows from the vendor column even if no matching invoices are found. If none are found, null vbalues are returned for those columns. 
+
+```sql
+SELECT vendor_name, invoice_number, invoice_total
+FROM vendors LEFT JOIN invoices
+   ON vendors.vendor_id = invoices.vendor_id 
+ORDER BY vendor_name;
+```
+
+Combination of `INNER` and `OUTER JOIN`
+
+```sql
+SELECT department_name, last_name, project_number
+FROM departments d  
+   JOIN employees e
+      ON d.department_number = e.department_number
+   LEFT JOIN projects p 
+      ON e.employee_id = p.employee_id
+ORDER BY department_name, last_name;
+```
+        
 ## USING keyword 
 Use the USING clause instead of an ON clause during an equijoin to specify the join. To join tables by multiple columns, put the multiple columns in the parentheses, separated by a column 
 
 **equijoin/equi-join** - When you use the equal operator to join two tables on a common column. 
 Common for the columns that are being compared to have the same name.
         
->Example 1:
+> Example 1:
 ```sql
 SELECT invoice_number, vendor_name
 FROM vendors
